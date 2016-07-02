@@ -76,7 +76,21 @@ def check_and_generate_csv(path_file):
                     #     error = True
                     #     print '\tstart/end time mismatch in lines %s and %s\n\t%s\n\t%s' %(counter+3, counter+4, smart_line, next_smart_line)
 
-                    list_detection.append(smart_line)
+                    ### check correctness between start and start in next row
+                    next_smart_line = []
+                    nxt_line = next_line.split('\t')
+                    for colu in nxt_line:
+                        if colu and not colu.isspace():
+                            colu = colu.strip()
+                            next_smart_line.append(colu)
+                    next_start = datetime.strptime(next_smart_line[0], '%Y-%m-%d %H:%M:%S')
+                    if start <= next_start:
+                        list_detection.append(smart_line)
+                    else:
+                        error = True
+                        print '\tstart/end time mismatch in lines %s and %s\n\t%s\n\t%s' %(counter+3, counter+4, smart_line, next_smart_line)
+
+                    # list_detection.append(smart_line)
                 else:
                     error = True
                     print '\tstart/end time mismatch at line %s\n\t %s' %(counter+3, smart_line)
@@ -309,7 +323,8 @@ def project():
         if 'Sensors' in path_file:
             matrix_from_sensors(path_file)
 
-        print 'CIAO DEPO :)'
+    print 'CIAO DEPO :)'
+
 
 if __name__ == '__main__':
     project()
