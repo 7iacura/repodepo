@@ -1,0 +1,11 @@
+"	"	Bed Pressure Bedroom	Cabinet Magnetic Bathroom	Basin PIR Bathroom	Toilet Flush Bathroom	Shower PIR Bathroom	Fridge Magnetic Kitchen	Cupboard Magnetic Kitchen	Toaster Electric Kitchen	Cooktop PIR Kitchen	Microwave Electric Kitchen
+Bed Pressure Bedroom	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0
+Cabinet Magnetic Bathroom	1.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0
+Basin PIR Bathroom	0.0	1.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	1.0
+Toilet Flush Bathroom	0.0	0.0	1.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0
+Shower PIR Bathroom	0.0	0.0	0.0	1.0	0.0	0.0	0.0	0.0	0.0	0.0
+Fridge Magnetic Kitchen	0.0	0.0	0.0	0.0	1.0	0.0	0.0	1.0	0.0	0.0
+Cupboard Magnetic Kitchen	0.0	0.0	0.0	0.0	0.0	1.0	0.0	0.0	0.0	0.0
+Toaster Electric Kitchen	0.0	0.0	0.0	0.0	0.0	0.0	0.5	0.0	0.0	0.0
+Cooktop PIR Kitchen	0.0	0.0	0.0	0.0	0.0	0.0	0.5	0.0	0.0	0.0
+Microwave Electric Kitchen	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	1.0	0.0
