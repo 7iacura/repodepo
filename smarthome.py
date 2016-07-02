@@ -62,18 +62,21 @@ def check_and_generate_csv(path_file):
                 start = datetime.strptime(smart_line[0], '%Y-%m-%d %H:%M:%S')
                 end = datetime.strptime(smart_line[1], '%Y-%m-%d %H:%M:%S')
                 if start <= end:
-                    next_smart_line = []
-                    nxt_line = next_line.split('\t')
-                    for colu in nxt_line:
-                        if colu and not colu.isspace():
-                            colu = colu.strip()
-                            next_smart_line.append(colu)
-                    next_start = datetime.strptime(next_smart_line[0], '%Y-%m-%d %H:%M:%S')
-                    if end <= next_start:
-                        list_detection.append(smart_line)
-                    else:
-                        error = True
-                        print '\tstart/end time mismatch in lines %s and %s\n\t%s\n\t%s' %(counter+3, counter+4, smart_line, next_smart_line)
+                    ### check correctness between end and start in next row
+                    # next_smart_line = []
+                    # nxt_line = next_line.split('\t')
+                    # for colu in nxt_line:
+                    #     if colu and not colu.isspace():
+                    #         colu = colu.strip()
+                    #         next_smart_line.append(colu)
+                    # next_start = datetime.strptime(next_smart_line[0], '%Y-%m-%d %H:%M:%S')
+                    # if end <= next_start:
+                    #     list_detection.append(smart_line)
+                    # else:
+                    #     error = True
+                    #     print '\tstart/end time mismatch in lines %s and %s\n\t%s\n\t%s' %(counter+3, counter+4, smart_line, next_smart_line)
+
+                    list_detection.append(smart_line)
                 else:
                     error = True
                     print '\tstart/end time mismatch at line %s\n\t %s' %(counter+3, smart_line)
@@ -120,9 +123,10 @@ def p_adls(path_file):
             else:
                 a[1] = round(numpy.divide(float(a[1]), float(tot_rows)), 4)
                 partial_tot += a[1]
+    print '%s: p(adl) calculated' %path_file
     return list_adls
 
-### probability of adl at time (t) after adl at time (t-1)
+### probability of going from adl at time (t-1) to adl at time (t)
 ### p(y(t)|y(t-1)) = p(adl(t)|adl(t-1))
 def p_adls_cond(path_file, list_adls):
     tot_rows = len(open(path_file+'.csv').readlines())
@@ -174,6 +178,8 @@ def p_adls_cond(path_file, list_adls):
 
     # print_matrix(matrix)
     csv_matrix(matrix, path_file+'_p(adls|adls)')
+
+    print '%s : p(adl|adl) calculated' %path_file
     del list_adls, matrix
 
 ### create matrix with probability of events in Sensors files
@@ -197,7 +203,7 @@ def matrix_from_sensors(path_file):
     ### build support list with weight (initialized to 0) of each triple
     list_weight_triple = []
     for t in list_triple:
-        t = [copy.depcopy(t), 0]
+        t = [copy.deepcopy(t), 0]
         list_weight_triple.append(t)
 
     ### initialize matrix with triple weight event:
@@ -292,18 +298,18 @@ def csv_matrix(matrix, file_name):
 
 def project():
     # dataset = ['Dataset/OrdonezA_ADLs','Dataset/OrdonezA_Sensors', 'Dataset/OrdonezB_ADLs','Dataset/OrdonezB_Sensors']
-    # dataset = ['Dataset/Sensors-test', 'Dataset/Sensors-test2', 'Dataset/Sensors-test3',]
-    dataset = ['Dataset/ADLs-test1',]
+    dataset = ['Dataset/OrdonezB_ADLs','Dataset/OrdonezB_Sensors']
+    # dataset = ['Dataset/Sensors-test','Dataset/ADLs-test1',]
     for path_file in dataset:
         check_and_generate_csv(path_file)
         # print_csv(path_file)
-        if 'Sensors' in path_file:
-            matrix_from_sensors(path_file)
         if 'ADLs' in path_file:
             list_adls = p_adls(path_file)
             p_adls_cond(path_file, list_adls)
+        if 'Sensors' in path_file:
+            matrix_from_sensors(path_file)
 
-    print 'ciao Depo :)'
+        print 'CIAO DEPO :)'
 
 if __name__ == '__main__':
     project()
