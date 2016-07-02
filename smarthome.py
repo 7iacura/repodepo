@@ -171,7 +171,8 @@ def p_adls_cond(path_file, list_adls):
                     else:
                         aa[1] = numpy.divide(float(aa[1]), float(tot_occ))
                         part_occ += aa[1]
-    print_matrix(matrix)
+
+    # print_matrix(matrix)
     csv_matrix(matrix, path_file+'_p(adls|adls)')
     del list_adls, matrix
 
@@ -295,12 +296,14 @@ def project():
     dataset = ['Dataset/ADLs-test1',]
     for path_file in dataset:
         check_and_generate_csv(path_file)
-        print_csv(path_file)
+        # print_csv(path_file)
         if 'Sensors' in path_file:
             matrix_from_sensors(path_file)
         if 'ADLs' in path_file:
             list_adls = p_adls(path_file)
             p_adls_cond(path_file, list_adls)
+
+    print 'ciao Depo :)'
 
 if __name__ == '__main__':
     project()
