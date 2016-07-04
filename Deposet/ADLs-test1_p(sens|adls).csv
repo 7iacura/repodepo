@@ -1,0 +1,13 @@
+"	"	Sleeping	Toileting	Showering	Breakfast	Grooming	Spare_Time/TV	Leaving
+Bed Pressure Bedroom	1.0	0.0	0.0	0.0	0.0	0.0	0.0
+Cabinet Magnetic Bathroom	0.0	1.0	0.0	0.0	0.0	0.0	0.0
+Basin PIR Bathroom	0.0	0.6667	0.0	0.0	0.3333	0.0	0.0
+Toilet Flush Bathroom	0.0	1.0	0.0	0.0	0.0	0.0	0.0
+Shower PIR Bathroom	0.0	0.0	1.0	0.0	0.0	0.0	0.0
+Fridge Magnetic Kitchen	0.0	0.0	0.0	1.0	0.0	0.0	0.0
+Cupboard Magnetic Kitchen	0.0	0.0	0.0	1.0	0.0	0.0	0.0
+Toaster Electric Kitchen	0.0	0.0	0.0	1.0	0.0	0.0	0.0
+Cooktop PIR Kitchen	0.0	0.0	0.0	1.0	0.0	0.0	0.0
+Microwave Electric Kitchen	0.0	0.0	0.0	1.0	0.0	0.0	0.0
+Seat Pressure Living	0.0	0.0	0.0	0.0	0.0	1.0	0.0
+Maindoor Magnetic Entrance	0.0	0.0	0.0	0.0	0.0	0.0	1.0
