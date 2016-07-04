@@ -333,12 +333,12 @@ def project():
     ###  house[1] = Sensors
     ###  house[3] = Description
 
-    ordonezA = ['Dataset/OrdonezA_ADLs','Dataset/OrdonezA_Sensors','Dataset/OrdonezA_Description']
-    ordonezB = ['Dataset/OrdonezB_ADLs','Dataset/OrdonezB_Sensors','Dataset/OrdonezB_Description']
-    dataset = [ordonezA, ordonezB]
+    # ordonezA = ['Dataset/OrdonezA_ADLs','Dataset/OrdonezA_Sensors','Dataset/OrdonezA_Description']
+    # ordonezB = ['Dataset/OrdonezB_ADLs','Dataset/OrdonezB_Sensors','Dataset/OrdonezB_Description']
+    # dataset = [ordonezA, ordonezB]
 
-    # test1 = ['Deposet/ADLs-test1','Deposet/Sensors-test1',]
-    # dataset = [test1]
+    test1 = ['Deposet/ADLs-test1','Deposet/Sensors-test1',]
+    dataset = [test1]
 
     for house in dataset:
         for path_file in house:
