@@ -1,0 +1,9 @@
+"	"	Spare_Time/TV	Grooming	Toileting	Sleeping	Breakfast	Showering	Snack
+Spare_Time/TV	0.2	0.6	0.0	0.0	0.0	0.0	0.2
+Grooming	0.375	0.25	0.25	0.0	0.0	0.125	0.0
+Toileting	0.0	0.4	0.2	0.2	0.2	0.0	0.0
+Sleeping	0.0	0.0	1.0	0.0	0.0	0.0	0.0
+Breakfast	1.0	0.0	0.0	0.0	0.0	0.0	0.0
+Showering	0.0	1.0	0.0	0.0	0.0	0.0	0.0
+Snack	0.0	0.0	0.5	0.0	0.0	0.0	0.5
+"	"	1.0	1.0	1.0	1.0	1.0	1.0	1.0
