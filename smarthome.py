@@ -15,15 +15,37 @@ def print_csv(path_file):
 
 ### print matrix structure
 def print_matrix(matrix):
-    print '================================================================='
+    print '\n'
     for line in matrix:
         print line[0]
         for tab in line[1]:
             print '\t%s' % tab
-    print '================================================================='
+    print '\n'
+
+### create csv of list
+def csv_list(list, file_name):
+    with open(file_name +'.csv', 'wb') as csvfile:
+        writer = csv.writer(csvfile, dialect='excel', delimiter='\t')
+
+        new_line = []
+        for a in list:
+            new_line.append(a[0])
+            new_line.append(a[1])
+            writer.writerow(new_line)
+            new_line = []
+
+        ### add last line to check the sum of every row is 1.0
+        last_line = ['\t']
+        tot = 0.0
+        for count, a in enumerate(list):
+            tot += a[1]
+        last_line.append(tot)
+        writer.writerow(last_line)
+
+    print '\tloaded in >> %s.csv <<' %file_name
 
 ### create csv of simple matrix
-def print_csv_s_matrix(matrix, file_name):
+def csv_s_matrix(matrix, file_name):
     with open(file_name +'.csv', 'wb') as csvfile:
         writer = csv.writer(csvfile, dialect='excel', delimiter='\t')
 
@@ -41,18 +63,18 @@ def print_csv_s_matrix(matrix, file_name):
             new_line = []
 
         ### add last line to check the sum of every row is 1.0
-        # last_line = ['\t']
-        # for t in matrix:
-        #     tot = 0.0
-        #     for count, tt in enumerate(t[1]):
-        #         tot += tt[1]
-        #     last_line.append(tot)
-        # writer.writerow(last_line)
+        last_line = ['\t']
+        for t in matrix:
+            tot = 0.0
+            for count, tt in enumerate(t[1]):
+                tot += tt[1]
+            last_line.append(tot)
+        writer.writerow(last_line)
 
     print '\tloaded in >> %s.csv <<' %file_name
 
 ### create csv of matrix with triple sensors
-def print_csv_t_matrix(matrix, file_name):
+def csv_t_matrix(matrix, file_name):
     with open(file_name +'.csv', 'wb') as csvfile:
         writer = csv.writer(csvfile, dialect='excel', delimiter='\t')
 
@@ -77,20 +99,19 @@ def print_csv_t_matrix(matrix, file_name):
             new_line = []
 
         ### add last line to check the sum of every row is 1.0
-        # last_line = ['\t']
-        # for t in matrix:
-        #     tot = 0.0
-        #     for count, tt in enumerate(t[1]):
-        #         tot += tt[1]
-        #     last_line.append(tot)
-        # writer.writerow(last_line)
+        last_line = ['\t']
+        for t in matrix:
+            tot = 0.0
+            for count, tt in enumerate(t[1]):
+                tot += tt[1]
+            last_line.append(tot)
+        writer.writerow(last_line)
 
     print '\tloaded in >> %s.csv <<' %file_name
 
 ### check the correctness of start/end times of detections in path_file.txt
 ### and generate the relative path_file.csv file
 def check_and_generate_csv(path_file):
-    print '\n-----------------------------------------------------------------'
     print 'check file >> %s.txt <<' %path_file
     file_input = open(path_file+'.txt').readlines()
     list_detection = []
@@ -125,6 +146,7 @@ def check_and_generate_csv(path_file):
                 start = datetime.strptime(smart_line[0], '%Y-%m-%d %H:%M:%S')
                 end = datetime.strptime(smart_line[1], '%Y-%m-%d %H:%M:%S')
                 if start <= end:
+
                     ### check correctness between end and start in next row
                     # next_smart_line = []
                     # nxt_line = next_line.split('\t')
@@ -162,7 +184,7 @@ def check_and_generate_csv(path_file):
             writer = csv.writer(csvfile, dialect='excel', delimiter='\t')
             for line in list_detection:
                 writer.writerow(line)
-        print '\tcorrectly loaded in >> %s.csv <<' %path_file
+        print '\tcorrectly loaded in >> %s.csv <<\n' %path_file
         del list_detection, iter_detection
     else:
         print '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
@@ -175,7 +197,7 @@ def check_and_generate_csv(path_file):
 
 ### probability of each adl
 ### p(y) = p(adl)
-def p_adls(path_file):
+def p_adls(path_file, house_name):
     tot_rows = len(open(path_file+'.csv').readlines())
     ### build list of all possible adls
     list_adls = []
@@ -199,12 +221,13 @@ def p_adls(path_file):
             else:
                 a[1] = round(numpy.divide(float(a[1]), float(tot_rows)), 4)
                 partial_tot += a[1]
-    print '%s: p(adls) calculated' %path_file
+    print '%s: p(adls) calculated' %house_name
+    csv_list(list_adls, house_name+'_p(adls)')
     return list_adls
 
 ### probability of going from adl at time (t-1) to adl at time (t)
 ### p(y(t)|y(t-1)) = p(adl(t)|adl(t-1))
-def p_adls_from_adls(path_file, list_adls):
+def p_adls_from_adls(path_file, list_adls, house_name):
     tot_rows = len(open(path_file+'.csv').readlines())
 
     ### initialize list_adls probability to 0
@@ -241,8 +264,8 @@ def p_adls_from_adls(path_file, list_adls):
         ### normalize
         normalize_matrix(matrix)
 
-    print '%s : p(adls|adls) calculated' %path_file
-    print_csv_s_matrix(matrix, path_file+'_p(adls|adls)')
+    print '%s : p(adls|adls) calculated' %house_name
+    csv_s_matrix(matrix, house_name+'_p(adls|adls)')
     del list_adls, matrix
 
 def t_sens(path_file):
@@ -263,7 +286,7 @@ def t_sens(path_file):
 ### probability of adl generate observation of sensor
 ### an observation of sensor is represented by a triple of Location-Type-Place
 ### p(x|y) = p(sens|adl)
-def p_sens_from_adls(path_file_adls, list_adls, path_file_sens, list_t_sens):
+def p_sens_from_adls(path_file_adls, list_adls, path_file_sens, list_t_sens, house_name):
 
     ### initialize list_adls probability to 0
     for a in list_adls:
@@ -300,8 +323,8 @@ def p_sens_from_adls(path_file_adls, list_adls, path_file_sens, list_t_sens):
 
     normalize_matrix(matrix)
     # print_matrix(matrix)
-    print '%s : p(sens|adls) calculated' %path_file_adls
-    print_csv_t_matrix(matrix, path_file_adls+'_p(sens|adls)')
+    print '%s : p(sens|adls) calculated' %house_name
+    csv_t_matrix(matrix, house_name+'_p(sens|adls)')
     del list_t_sens, matrix
 
 
@@ -329,33 +352,38 @@ def normalize_matrix(matrix):
 def project():
 
     ### dataset is the list of each house analyzed, in each house:
-    ###  house[0] = ADLs
-    ###  house[1] = Sensors
-    ###  house[3] = Description
+    ###     house[0] = name house
+    ###     house[1] = Description
+    ###     house[2] = ADLs
+    ###     house[3] = Sensors
 
-    # ordonezA = ['Dataset/OrdonezA_ADLs','Dataset/OrdonezA_Sensors','Dataset/OrdonezA_Description']
-    # ordonezB = ['Dataset/OrdonezB_ADLs','Dataset/OrdonezB_Sensors','Dataset/OrdonezB_Description']
+    # ordonezA = ['Dataset/OrdonezA','Dataset/OrdonezA_Description','Dataset/OrdonezA_ADLs','Dataset/OrdonezA_Sensors']
+    # ordonezA = ['Dataset/OrdonezB','Dataset/OrdonezB_Description','Dataset/OrdonezB_ADLs','Dataset/OrdonezB_Sensors']
     # dataset = [ordonezA, ordonezB]
 
-    test1 = ['Deposet/ADLs-test1','Deposet/Sensors-test1',]
-    dataset = [test1]
+    test1 = ['Deposet/test1','Deposet/test1_Description','Deposet/test1_ADLs','Deposet/test1_Sensors']
+    test2 = ['Deposet/test2','Deposet/test2_Description','Deposet/test2_ADLs','Deposet/test2_Sensors']
+    dataset = [test1, test2]
 
     for house in dataset:
+        print '\n'
         for path_file in house:
-            ### check the correctnessof file
-            if not ('Description' in path_file):
+            ### check the correctness of file
+            if ('ADLs' in path_file) or ('Sensors' in path_file):
                 check_and_generate_csv(path_file)
-        path_adls = house[0]
+        house_name = house[0]
+        path_adls = house[2]
         ### obtain the list adls
-        list_adls = p_adls(path_adls)
+        list_adls = p_adls(path_adls, house_name)
         ### calculate p(adls|adls)
-        p_adls_from_adls(path_adls, list_adls)
+        p_adls_from_adls(path_adls, list_adls, house_name)
 
-        path_sens = house[1]
+        path_sens = house[3]
         ### obtain the list sens
         list_sens = t_sens(path_sens)
         ### calculate p(sens|adls)
-        p_sens_from_adls(path_adls, list_adls, path_sens, list_sens)
+        p_sens_from_adls(path_adls, list_adls, path_sens, list_sens, house_name)
+        print '\n------------------------------------------------------------'
 
 if __name__ == '__main__':
     project()
