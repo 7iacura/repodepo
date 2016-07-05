@@ -39,7 +39,7 @@ def csv_list(list, file_name):
         tot = 0.0
         for count, a in enumerate(list):
             tot += a[1]
-        last_line.append(tot)
+        last_line.append(round(tot,4))
         writer.writerow(last_line)
 
     print '\tloaded in >> %s.csv <<' %file_name
@@ -68,7 +68,7 @@ def csv_s_matrix(matrix, file_name):
             tot = 0.0
             for count, tt in enumerate(t[1]):
                 tot += tt[1]
-            last_line.append(tot)
+            last_line.append(round(tot,4))
         writer.writerow(last_line)
 
     print '\tloaded in >> %s.csv <<' %file_name
@@ -104,7 +104,7 @@ def csv_t_matrix(matrix, file_name):
             tot = 0.0
             for count, tt in enumerate(t[1]):
                 tot += tt[1]
-            last_line.append(tot)
+            last_line.append(round(tot,4))
         writer.writerow(last_line)
 
     print '\tloaded in >> %s.csv <<' %file_name
