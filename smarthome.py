@@ -216,7 +216,7 @@ def obtain_p_adls(path_file, house_name):
 ### obtain probability of transition between adls
 ### return [t_adls] = [matrix] = matrix with transition probabilities
 ### p(y(t)|y(t-1)) = p(adl(t)|adl(t-1))
-def obtain_t_adls(path_file, list_adls, p_adls, house_name):
+def obtain_t_adls(path_file, list_adls, house_name):
     ### initialize square matrix of transition between adls
     matrix = []
     for a in list_adls:
@@ -386,15 +386,15 @@ def project():
     # dataset = [ordonezA, ordonezB]
 
     test1 = ['Deposet/test1','Deposet/test1_Description','Deposet/test1_ADLs','Deposet/test1_Sensors']
-    # test2 = ['Deposet/test2','Deposet/test2_Description','Deposet/test2_ADLs','Deposet/test2_Sensors']
-    dataset = [test1]
+    test2 = ['Deposet/test2','Deposet/test2_Description','Deposet/test2_ADLs','Deposet/test2_Sensors']
+    dataset = [test1, test2]
 
     for house in dataset:
         print '\n'
-        # for path_file in house:
+        for path_file in house:
             ### check the correctness of file
-            # if ('ADLs' in path_file) or ('Sensors' in path_file):
-            #     check_and_generate_csv(path_file)
+            if ('ADLs' in path_file) or ('Sensors' in path_file):
+                check_and_generate_csv(path_file)
 
         house_name = house[0]
         path_adls = house[2]
@@ -404,7 +404,7 @@ def project():
         list_adls = temp[0]
         p_adls = temp[1]
 
-        t_adls = obtain_t_adls(path_adls, list_adls, p_adls, house_name)
+        t_adls = obtain_t_adls(path_adls, list_adls, house_name)
 
         list_sens = obtain_list_sens(path_sens, house_name)
         # o_sens_adls = obtain_o_sens_adls(path_adls, list_adls, p_adls, path_sens, list_sens, house_name)

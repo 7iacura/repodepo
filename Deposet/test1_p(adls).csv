@@ -1,8 +1,2 @@
-Sleeping	0.1111
-Toileting	0.2222
-Showering	0.1111
-Breakfast	0.1111
-Grooming	0.1111
-Spare_Time/TV	0.2222
-Leaving	0.1112
-"	"	1.0
+Sleeping	Toileting	Showering	Breakfast	Grooming	Spare_Time/TV	Leaving
+0.1	0.3	0.1	0.1	0.1	0.2	0.1
