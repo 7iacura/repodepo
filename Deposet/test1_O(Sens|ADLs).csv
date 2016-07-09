@@ -1,8 +1,8 @@
 "	"	Bed Pressure Bedroom	Cabinet Magnetic Bathroom	Basin PIR Bathroom	Toilet Flush Bathroom	Shower PIR Bathroom	Fridge Magnetic Kitchen	Cupboard Magnetic Kitchen	Toaster Electric Kitchen	Cooktop PIR Kitchen	Microwave Electric Kitchen	Seat Pressure Living	Maindoor Magnetic Entrance
 Sleeping	1.0	0.0	0.0	0.0	0.0	0.0	0.0
-Toileting	0.0	0.1667	0.3333	0.5	0.0	0.0	0.0
+Toileting	0.0	0.166666667	0.333333333	0.5	0.0	0.0	0.0
 Showering	0.0	0.0	0.0	0.0	1.0	0.0	0.0
-Breakfast	0.0	0.0	0.0	0.0	0.0	0.2857	0.7143
+Breakfast	0.0	0.0	0.0	0.0	0.0	0.285714286	0.285714286
 Grooming	0.0	0.0	1.0	0.0	0.0	0.0	0.0
-Spare_Time/TV	0.0	0.0	0.0	0.0	0.0	0.0	1.0
-Leaving	0.0	0.0	0.0	0.0	0.0	0.0	1.0
+Spare_Time/TV	0.0	0.0	0.0	0.0	0.0	0.0	0.0
+Leaving	0.0	0.0	0.0	0.0	0.0	0.0	0.0
