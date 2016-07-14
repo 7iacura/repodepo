@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.12.11)  14 JUL 2016 11:50
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.12.11)  14 JUL 2016 17:24
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -39,17 +39,17 @@ Package tocbasic Info: omitting babel extension for `lof'
 Package tocbasic Info: omitting babel extension for `lot'
 (tocbasic)             because of feature `nobabel' available
 (tocbasic)             for `lot' on input line 124.
-Package scrartcl Info: You've used standard option `11pt'.
+Package scrartcl Info: You've used standard option `12pt'.
 (scrartcl)             This is correct!
-(scrartcl)             Internally I'm using `fontsize=11pt'.
+(scrartcl)             Internally I'm using `fontsize=12pt'.
 (scrartcl)             If you'd like to set the option with \KOMAoptions,
-(scrartcl)             you'd have to use `fontsize=11pt' there
-(scrartcl)             instead of `11pt', too.
-Class scrartcl Info: File `scrsize11pt.clo' used to setup font sizes on input l
+(scrartcl)             you'd have to use `fontsize=12pt' there
+(scrartcl)             instead of `12pt', too.
+Class scrartcl Info: File `scrsize12pt.clo' used to setup font sizes on input l
 ine 1942.
 
-(/usr/local/texlive/2015/texmf-dist/tex/latex/koma-script/scrsize11pt.clo
-File: scrsize11pt.clo 2015/05/06 v3.17a KOMA-Script font size class option (11p
+(/usr/local/texlive/2015/texmf-dist/tex/latex/koma-script/scrsize12pt.clo
+File: scrsize12pt.clo 2015/05/06 v3.17a KOMA-Script font size class option (12p
 t)
 )
 (/usr/local/texlive/2015/texmf-dist/tex/latex/koma-script/typearea.sty
@@ -72,21 +72,21 @@ Package typearea Info: You've used standard option `a4paper'.
 \ta@temp=\skip44
 \footheight=\skip45
 Package typearea Info: These are the values describing the layout:
-(typearea)             DIV  = 10
+(typearea)             DIV  = 12
 (typearea)             BCOR = 0.0pt
 (typearea)             \paperwidth      = 597.50793pt
-(typearea)              \textwidth      = 418.25555pt
+(typearea)              \textwidth      = 448.13095pt
 (typearea)              DIV departure   = -6%
-(typearea)              \evensidemargin = 17.3562pt
-(typearea)              \oddsidemargin  = 17.3562pt
+(typearea)              \evensidemargin = 2.4185pt
+(typearea)              \oddsidemargin  = 2.4185pt
 (typearea)             \paperheight     = 845.04694pt
-(typearea)              \textheight     = 595.80026pt
-(typearea)              \topmargin      = -25.16531pt
-(typearea)              \headheight     = 17.0pt
-(typearea)              \headsep        = 20.40001pt
-(typearea)              \topskip        = 11.0pt
-(typearea)              \footskip       = 47.6pt
-(typearea)              \baselineskip   = 13.6pt
+(typearea)              \textheight     = 635.5pt
+(typearea)              \topmargin      = -41.72441pt
+(typearea)              \headheight     = 18.125pt
+(typearea)              \headsep        = 21.75pt
+(typearea)              \topskip        = 12.0pt
+(typearea)              \footskip       = 50.75pt
+(typearea)              \baselineskip   = 14.5pt
 (typearea)              on input line 1485.
 )
 \c@part=\count80
@@ -652,29 +652,29 @@ LaTeX Font Info:    Redeclaring math accent \widehat on input line 1845.
 LaTeX Font Info:    Redeclaring math accent \widetilde on input line 1846.
 LaTeX Font Info:    Redeclaring math accent \vec on input line 1848.
 )
-No file Report.aux.
+(./Report.aux)
 \openout1 = `Report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 14.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 14.
-(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1cmr.fd
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 13.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 13.
+ (/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Info: Redefining \it@ocap on input line 14.
-LaTeX Info: Redefining \it@ccap on input line 14.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Info: Redefining \it@ocap on input line 13.
+LaTeX Info: Redefining \it@ccap on input line 13.
 
 
 File italian.ldf warning: 
@@ -682,7 +682,7 @@ italian.ldf    With OT1 encoding guillemets are poorly faked
 italian.ldf    Use T1 encoding
 italian.ldf    or specify a font with command \CaporaliFrom
 italian.ldf    See the documentation concerning the babel-italian typesetting 
-italian.ldf    on input line 14.
+italian.ldf    on input line 13.
 
 (/usr/local/texlive/2015/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -745,60 +745,55 @@ G,.JBIG2,.JB2,.eps]
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-<Sensor.png, id=1, 627.84563pt x 134.75343pt>
+<Sensor.png, id=1, 803.0pt x 311.1625pt>
 File: Sensor.png Graphic file (type png)
  <use Sensor.png>
-Package pdftex.def Info: Sensor.png used on input line 27.
-(pdftex.def)             Requested size: 439.48894pt x 94.32675pt.
-
-Overfull \hbox (21.23338pt too wide) in paragraph at lines 27--28
- [][] 
- []
-
-File: Sensor.png Graphic file (type png)
-<use Sensor.png>
-Package pdftex.def Info: Sensor.png used on input line 37.
-(pdftex.def)             Requested size: 439.48894pt x 94.32675pt.
-
-Overfull \hbox (21.23338pt too wide) in paragraph at lines 37--38
- [][] 
- []
-
-[1
+Package pdftex.def Info: Sensor.png used on input line 35.
+(pdftex.def)             Requested size: 441.65137pt x 171.13991pt.
+ [1
 
 
-{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./Senso
-r.png>] <HMM.png, id=11, 234.1247pt x 116.68594pt>
+{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+<Activity.png, id=14, 632.3625pt x 311.1625pt>
+File: Activity.png Graphic file (type png)
+ <use Activity.png>
+Package pdftex.def Info: Activity.png used on input line 47.
+(pdftex.def)             Requested size: 347.80045pt x 171.13991pt.
+
+<HMM.png, id=15, 234.1247pt x 116.68594pt>
 File: HMM.png Graphic file (type png)
  <use HMM.png>
-Package pdftex.def Info: HMM.png used on input line 49.
-(pdftex.def)             Requested size: 163.88615pt x 81.67958pt.
- [2 <./HMM.png>] [3] (./Report.aux)
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
- ) 
+Package pdftex.def Info: HMM.png used on input line 58.
+(pdftex.def)             Requested size: 234.12411pt x 116.68564pt.
+ [2 <./Sensor.png> <./Activity.png>] [3 <./HMM.png>] [4] (./Report.aux) ) 
 Here is how much of TeX's memory you used:
- 6589 strings out of 493089
- 93416 string characters out of 6134841
- 206077 words of memory out of 5000000
- 9974 multiletter control sequences out of 15000+600000
- 18868 words of font info for 63 fonts, out of 8000000 for 9000
+ 6598 strings out of 493089
+ 93519 string characters out of 6134841
+ 205097 words of memory out of 5000000
+ 9981 multiletter control sequences out of 15000+600000
+ 18228 words of font info for 61 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 47i,7n,50p,792b,225s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolE.enc}{/
-usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolC.enc}</usr/
-local/texlive/2015/texmf-dist/fonts/type1/public/mnsymbol/MnSymbol10.pfb></usr/
-local/texlive/2015/texmf-dist/fonts/type1/public/mnsymbol/MnSymbol8.pfb></usr/l
-ocal/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/lo
-cal/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/loca
-l/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/
-texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/te
-xlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb>
-Output written on Report.pdf (3 pages, 98329 bytes).
+ 47i,7n,50p,792b,227s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/
+local/texlive/2015/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolE.enc}{/usr/loca
+l/texlive/2015/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}{/usr/local
+/texlive/2015/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolC.enc}</usr/local/tex
+live/2015/texmf-dist/fonts/type1/public/mnsymbol/MnSymbol12.pfb></usr/local/tex
+live/2015/texmf-dist/fonts/type1/public/mnsymbol/MnSymbol8.pfb></usr/local/texl
+ive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/local/tex
+live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texl
+ive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texliv
+e/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/
+2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/20
+15/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2015/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/local/texlive/2015
+/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2015/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2015/t
+exmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
+Output written on Report.pdf (4 pages, 239705 bytes).
 PDF statistics:
- 48 PDF objects out of 1000 (max. 8388607)
- 33 compressed objects within 1 object stream
+ 76 PDF objects out of 1000 (max. 8388607)
+ 52 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 11 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 16 words of extra memory for PDF output out of 10000 (max. 10000000)
 
