@@ -1,11 +1,9 @@
 
+
 import csv
 import copy
-from datetime import datetime
 import numpy as np
-from numpy import matrix
-import ghmm
-from ghmm import *
+from datetime import datetime
 
 ### check the correctness of start/end times of detections in path_file.txt
 ### and generate the relative path_file.csv file
@@ -96,15 +94,20 @@ def check_and_generate_csv(path_file):
 
 ### normalize list structure
 def normalize_list(list):
+    norm_list = []
+    epsilon = 0.0000001
     tot = 0
+    part = 0
+    for c, elem in enumerate(list):
+        if list[c] == 0:
+            list[c] = epsilon
     for elem in list:
         tot += elem
-    part = 0
     for c, elem in enumerate(list):
         if c+1 == len(list):
             list[c] = 1.00 - part
         else:
-            list[c] = np.divide(float(list[c]), float(tot))
+            list[c] = np.divide(float(list[c]), float(tot))    
             part += list[c]
 
 ### print matrix structure
@@ -116,19 +119,6 @@ def print_matrix(matrix):
 def normalize_matrix(matrix):
     for row in matrix:
         normalize_list(row)
-
-    # for x, row in enumerate(matrix):
-    #     tot_in_row = 0
-    #     for col in row:
-    #         tot_in_row += col
-    #     if tot_in_row != 0:
-    #         part_in_row = 0
-    #         for y, col in enumerate(row):
-    #             if y+1 == len(row):
-    #                 matrix[x][y] = round(1.00 - part_in_row, 9)
-    #             else:
-    #                 matrix[x][y] = round(np.divide(float(matrix[x][y]), float(tot_in_row)), 9)
-    #                 part_in_row += matrix[x][y]
 
 ### create csv from lists
 def csv_list(list_names, list_values, file_name):
@@ -233,7 +223,6 @@ def obtain_list_sens(path_file, house_name):
     ### build list of all possible triple Location-Type-Place
     ### ad save the order of sensors detections
     list_sens = []
-    # sens_seq = ''
     sens_seq = []
     with open(path_file+'.csv', 'rb') as csvfile:
         reader = csv.reader(csvfile, dialect='excel', delimiter='\t')
@@ -243,13 +232,29 @@ def obtain_list_sens(path_file, house_name):
             for c, s in enumerate(list_sens):
                 if s == sens:
                     exist_sens = True
-                    # sens_seq += '%s' %c
                     sens_seq.append(c)
             if not exist_sens:
                 list_sens.append(sens)
-                # sens_seq += '%s' %(len(list_sens)-1)
                 sens_seq.append(len(list_sens)-1)
     return list_sens, sens_seq
+
+###
+def verbose_sequence_to_int(list_name, verb_sequence):
+    int_sequence = []
+    for a in verb_sequence:
+        for x, b in enumerate(list_name):
+            if a == b:
+                int_sequence.append(x)
+    return int_sequence
+
+###
+def int_sequence_to_verbose(list_name, int_sequence):
+    verb_sequence = []
+    for a in int_sequence:
+        for x, b in enumerate(list_name):
+            if a == x:
+                verb_sequence.append(b)
+    return verb_sequence
 
 ### obtain probability of observations sens from adls
 ### return [o_sens_adls] = [matrix] = matrix with observations probabilities
@@ -291,26 +296,7 @@ def obtain_o_sens_adls(path_adls, list_adls, path_sens, list_sens, house_name):
     csv_matrix(list_adls, list_sens, matrix, house_name+'_O(Sens|ADLs)')
     return matrix
 
-def ghmm_matrix(sigma, A, B, pi, *seqs):
-    m = HMMFromMatrices(sigma, DiscreteDistribution(sigma), A, B, pi)
-    print '\n', m
-    return m
-
-def ghmm_train(m, train_seq):
-    m.baumWelch(train_seq)
-    print 'trained with baumWelch method\n'
-
-def ghmm_viterbi(sigma, m, test_seq):
-    vt = m.viterbi(test_seq)
-    print 'analyzed >test_seq< with viterbi algorithm\n', vt
-
-    my_seq = EmissionSequence(sigma, [1] * 20 + [6] * 10 + [1] * 40)
-    vm = m.viterbi(my_seq)
-    print
-    print 'analyzed >my_seq< with viterbi algorithm\n', vm
-
-
-def project():
+def elaborate_dataset():
 
     ### dataset is the list of each house analyzed, in each house:
     ###     house[0] = name house
@@ -328,10 +314,10 @@ def project():
 
     for house in dataset:
         print 
-        for path_file in house:
+        # for path_file in house:
             ### check the correctness of file
-            if ('ADLs' in path_file) or ('Sensors' in path_file):
-                check_and_generate_csv(path_file)
+            # if ('ADLs' in path_file) or ('Sensors' in path_file):
+                # check_and_generate_csv(path_file)
 
         house_name = house[0]
         path_adls = house[2]
@@ -347,38 +333,144 @@ def project():
         sens_seq = temp[1]
         o_sens_adls = obtain_o_sens_adls(path_adls, list_adls, path_sens, list_sens, house_name)
 
+        return house_name, path_adls, list_adls, p_adls, t_adls, path_sens, list_sens, sens_seq, o_sens_adls
+
+def ghmm(sigma, A, B, pi, train_seq, test_seq):
+    m = HMMFromMatrices(sigma, DiscreteDistribution(sigma), A, B, pi)
+    print '\n', m
+
+    m.baumWelch(train_seq)
+    print 'trained with baumWelch method\n'
+
+    vt = m.viterbi(test_seq)
+    print 'analyzed >test_seq< with viterbi algorithm\n', vt
+
+    # my_seq = EmissionSequence(sigma, [1] * 20 + [6] * 10 + [1] * 40)
+    # vm = m.viterbi(my_seq)
+    # print
+    # print 'analyzed >my_seq< with viterbi algorithm\n', vm
+
+    return m
+
+def model_hmm(package, house_name, path_adls, list_adls, p_adls, t_adls, path_sens, list_sens, sens_seq, o_sens_adls):
+
+    if package == 'pomegranate':
+
+        model = HiddenMarkovModel( name="Smarthome" )
+
+        states = []
+        for x, a in enumerate(o_sens_adls):
+            st = {}
+            for y, s in enumerate(a):
+                st['%s' %list_sens[y]] = o_sens_adls[x][y]
+            state = State( DiscreteDistribution( st ), name='%s' %list_adls[x] )
+            states.append(state)
+            model.add_transition( model.start, state, p_adls[x] )
+
+        for x, a in enumerate(t_adls):
+            for y, aa in enumerate(a):
+                model.add_transition( states[x], states[y], t_adls[x][y] )
+
+        # for state in states:
+            # print state
+
+        # model.bake( verbose=True )
+        model.bake()
+
+        sequence = []
+        for ss in sens_seq:
+            for y, ls in enumerate(list_sens):
+                if ss == y:
+                    sequence.append(ls)
+
+        # model.fit(sequence, algorithm='baum-welch')
+
+        # print model.predict(sequence, algorithm='viterbi')
+
+        # print "\n".join( state.name for i, state in model.viterbi( sequence )[1] )
+
+        sample = verbose_sequence_to_int(list_sens, model.sample(30))
+
+
+
+
+        # rainy = State( DiscreteDistribution({ 'walk': 0.1, 'shop': 0.4, 'clean': 0.5 }), name='Rainy' )
+        # sunny = State( DiscreteDistribution({ 'walk': 0.6, 'shop': 0.3, 'clean': 0.1 }), name='Sunny' )
+
+        # model.add_transition( model.start, rainy, 0.6 )
+        # model.add_transition( model.start, sunny, 0.4 )
+        
+        # model.add_transition( rainy, rainy, 0.65 )
+        # model.add_transition( rainy, sunny, 0.25 )
+        # model.add_transition( sunny, rainy, 0.35 )
+        # model.add_transition( sunny, sunny, 0.55 )
+        
+        # model.add_transition( rainy, model.end, 0.1 )
+        # model.add_transition( sunny, model.end, 0.1 )
+        # model.bake( verbose=True )
+            
+        # sequence = [ 'walk', 'shop', 'clean', 'clean', 'clean', 'walk', 'clean' ]
+        
+        # print math.e**model.forward( sequence )[ len(sequence), model.end_index ]
+        # print math.e**model.forward_backward( sequence )[1][ 2, model.states.index( rainy ) ]
+        # print math.e**model.backward( sequence )[ 3, model.states.index( sunny ) ]
+        # print " ".join( state.name for i, state in model.maximum_a_posteriori( sequence )[1] )
+
+
+    if package == 'ghmm':
+
         e = IntegerRange(0, len(list_sens)) ### emission domain
-        # print sens_seq
-        # real_seq = [1, 2, 3, 4, 5, 6, 7, 8, 6, 7, 9, 10, 3, 11, 3, 4, 12, 12, 6, 11, 4]
-        train_sens_seq = EmissionSequence(e, sens_seq)
-        # test = [3, 8, 2, 3, 4, 5, 2, 2, 7, 0, 11, 2]
-        # test_sens_seq = EmissionSequence(e, test)
+        # seq_for_training = [1, 2, 3, 4, 5, 6, 7, 8, 6, 7, 9, 10, 3, 11, 3, 4, 12, 12, 6, 11, 4]
+        train = EmissionSequence(e, sens_seq)
+        ts = [0, 1, 2, 3, 4, 5, 6, 7, 5, 6, 4, 9, 2, 10, 2, 3, 11, 11, 5, 10, 3]
+        test = EmissionSequence(e, ts)
+    
+        model = ghmm(e, t_adls, o_sens_adls, p_adls, train, test)
 
-        mm = ghmm_matrix(e, t_adls, o_sens_adls, p_adls)
-        # ghmm_train(mm, train_sens_seq)
-        # ghmm_viterbi(e, mm, test_sens_seq)
+        ### //////////////////////////////////////////////
+        ### example from ghmm.org
+        # print '\n//////////////////////////////////////////////\nexample from ghmm.org'
+        # sigma = IntegerRange(1, 7)
+        # A = [[0.9, 0.1], [0.3, 0.7]]
+        # efair = [1.0 / 6] * 6
+        # eloaded = [3.0 / 13, 3.0 / 13, 2.0 / 13, 2.0 / 13, 2.0 / 13, 1.0 / 13]
+        # B = [efair, eloaded]
+        # pi = [0.5] * 2
+        # tr = [1, 6, 2, 5, 5, 4, 5, 1, 2, 1, 3, 6, 6, 3, 2, 1, 4, 4, 1, 1, 4, 2, 1, 1, 6, 3, 3, 2, 1, 4, 4, 3, 3, 5, 3, 3, 3, 3, 4, 3, 1, 5, 4, 1, 4, 5, 1, 1, 3, 4, 3, 5, 5, 1, 5, 2, 1, 5, 3, 6, 3, 6, 5, 6, 5, 3, 3, 1, 2, 6, 3, 3, 2, 2, 5, 4, 1, 5, 6, 3, 3, 5, 1, 5, 2, 3, 1, 1, 1, 5, 6, 4, 5, 5, 1, 6, 2, 6, 5, 3, 1, 1, 3, 3, 1, 1, 2, 5, 2, 3, 2, 4, 1, 5, 5, 5, 4, 6, 5, 6, 3, 1, 6, 1, 5, 4, 3, 1, 3, 1, 2, 6, 3, 5, 2, 1, 3, 6, 4, 4, 4, 4, 3, 5, 1, 6, 4, 4, 3, 5, 1, 5, 5, 5, 5, 6, 5, 1, 6, 1, 1, 4, 1, 4, 2, 6, 6, 2, 5, 4, 5, 5, 4, 3, 3, 6, 5, 4, 1, 5, 3, 3, 3, 2, 5, 6, 2, 3, 3, 5, 1, 3, 4, 5, 1, 6, 3, 2, 4, 5, 2, 2, 5, 1, 4, 5, 1, 5, 6, 5, 3, 4, 6, 1, 3, 2, 4, 6, 6, 3, 1, 6, 5, 2, 5, 4, 4, 4, 4, 2, 6, 3, 3, 2, 1, 1, 6, 5, 3, 3, 3, 4, 5, 6, 1, 6, 2, 3, 1, 4, 6, 5, 3, 1, 2, 4, 6, 2, 6, 2, 1, 2, 6, 5, 6, 1, 4, 4, 1, 5, 5, 5, 3, 4, 4, 5, 2, 2, 5, 1, 2, 1, 3, 2, 3, 3, 3, 5, 3, 5, 2, 3, 5, 5, 5, 2, 6, 2, 5, 6, 4, 5, 4, 4, 3, 3, 6, 2, 3, 2, 2, 6, 1, 1, 1, 4, 1, 2, 6, 1, 4, 5, 2, 6, 2, 6, 6, 3, 2, 4, 2, 2, 2, 3, 3, 4, 4, 1, 1, 1, 5, 3, 4, 3, 5, 3, 3, 3, 4, 6, 1, 1, 6, 4, 2, 4, 6, 4, 1, 5, 1, 4, 5, 5, 4, 6, 1, 3, 5, 1, 5, 3, 1, 6, 6, 3, 3, 2, 4, 4, 3, 1, 2, 5, 3, 5, 4, 5, 3, 2, 2, 6, 4, 4, 2, 6, 4, 6, 1, 4, 6, 3, 3, 4, 6, 3, 2, 3, 5, 3, 5, 4, 2, 2, 2, 1, 4, 1, 5, 1, 1, 1, 6, 6, 3, 4, 4, 5, 1, 2, 4, 3, 3, 1, 1, 5, 6, 1, 3, 4, 6, 2, 4, 5, 2, 1, 1, 2, 6, 5, 4, 3, 5, 4, 5, 2, 5, 1, 1, 5, 4, 3, 6, 5, 3, 6, 4, 2, 3, 5, 1, 4, 6, 1, 2, 6, 1, 3, 5, 2, 1, 2, 6, 1, 2, 5, 4, 4, 5, 5, 1, 4, 3, 1, 6, 5, 4, 3, 4, 2, 4, 2, 6, 6, 3, 3, 6, 1, 5, 6, 4, 1, 3, 2, 2, 1, 3, 4, 6, 3, 5, 5, 1, 5, 5, 2, 5, 3, 3, 1, 3, 4, 2, 1, 1, 2, 1, 5, 1, 5, 4, 2, 6, 3, 5, 6, 6, 2, 2, 5, 6, 1, 5, 3, 1, 2, 1, 2, 3, 4, 5, 5, 4, 3, 3, 3, 4, 6, 2, 5, 2, 5, 5, 3, 1, 4, 3, 6, 2, 5, 6, 3, 4, 2, 6, 2, 5, 1, 3, 1, 2, 2, 1, 4, 1, 6, 1, 4, 5, 5, 5, 2, 3, 2, 5, 1, 6, 2, 5, 5, 1, 4, 4, 6, 1, 3, 1, 1, 4, 3, 1, 2, 1, 1, 1, 4, 2, 2, 2, 1, 2, 3, 5, 5, 4, 4, 4, 6, 3, 6, 4, 3, 5, 2, 4, 4, 5, 6, 2, 6, 5, 5, 3, 1, 5, 4, 4, 1, 5, 3, 3, 1, 2, 6, 3, 6, 6, 6, 6, 1, 1, 3, 2, 5, 6, 4, 3, 4, 6, 5, 2, 2, 1, 2, 5, 5, 6, 1, 5, 2, 5, 6, 2, 4, 5, 4, 2, 5, 5, 4, 3, 4, 1, 6, 1, 1, 6, 2, 2, 1, 3, 4, 3, 1, 1, 6, 1, 1, 1, 4, 4, 4, 1, 5, 6, 4, 4, 2, 1, 4, 6, 6, 2, 3, 6, 2, 4, 3, 4, 3, 3, 3, 4, 1, 2, 4, 3, 3, 6, 2, 4, 1, 1, 2, 5, 4, 6, 3, 1, 2, 1, 3, 2, 1, 3, 6, 2, 2, 2, 5, 1, 1, 6, 6, 6, 1, 4, 2, 6, 2, 3, 3, 2, 4, 1, 2, 5, 2, 6, 3, 5, 6, 2, 1, 3, 6, 5, 1, 4, 1, 4, 6, 4, 4, 4, 2, 2, 3, 6, 4, 6, 5, 4, 2, 2, 5, 5, 3, 4, 2, 3, 3, 6, 6, 3, 1, 5, 5, 5, 6, 4, 2, 6, 5, 4, 5, 6, 3, 1, 1, 5, 4, 5, 5, 3, 5, 3, 2, 2, 1, 3, 3, 6, 5, 3, 5, 1, 2, 5, 2, 4, 1, 5, 2, 1, 2, 5, 3, 1, 3, 4, 4, 1, 5, 1, 3, 1, 2, 6, 3, 6, 1, 3, 5, 2, 6, 6, 5, 2, 3, 6, 3, 3, 4, 5, 1, 6, 4, 2, 4, 1, 4, 3, 3, 4, 2, 3, 1, 6, 2, 4, 3, 5, 2, 2, 4, 5, 1, 3, 2, 2, 1, 6, 3, 2, 1, 2, 1, 5, 4, 2, 1, 4, 5, 5, 3, 4, 4, 6, 5, 3, 6, 5, 3, 6, 5, 6, 3, 3, 5, 3, 3, 2, 4, 2, 6, 3, 2, 6, 5, 5, 5, 3, 3, 1, 2, 5, 1, 3, 6, 3, 3, 5, 1, 4, 4, 4, 2, 3, 4, 2, 6, 1, 6, 1, 4, 3, 2, 1, 3, 5, 4, 6, 5, 6, 6, 6, 4, 2, 4, 3, 5, 1, 1, 1, 5, 4, 6, 2, 2, 4, 3, 2, 1, 6, 2, 1, 6, 1, 6, 5, 1, 6, 4, 3, 6, 5, 4, 4, 1, 3, 4, 3, 1, 6, 4, 4, 2, 1, 2, 5, 5, 1, 4, 3, 2, 3, 2, 1, 4, 6, 3, 6, 6, 1, 5, 3, 6, 1, 3, 6, 6, 5, 3, 2, 4, 6, 2, 4, 4, 4, 2, 4, 4, 3, 6, 5, 3, 4, 1, 3, 3, 1, 6, 1, 4, 1, 6, 3, 5, 2, 1, 5, 4, 2, 4, 6, 1, 4, 3, 1, 1, 3, 2, 5, 5, 1, 1, 5, 3, 4, 3, 1, 3, 2, 5, 6, 2, 1, 3, 2, 6, 3, 6, 4, 4, 3, 5, 3, 2, 5, 2, 3, 2, 4, 2, 6, 2, 4, 6, 5, 5, 2, 3, 5, 6, 4, 3, 1, 3, 3, 2, 2, 2, 3, 6, 1, 6, 3, 1, 6, 3, 1, 3, 1, 1, 1, 4, 3, 1, 5, 4, 6, 2, 1, 6, 2, 2, 2, 1, 5, 5, 1, 2, 5, 5, 2, 5, 2, 4, 5, 1, 5, 5, 6, 6, 5, 3, 5, 6, 2, 5, 5, 5, 1, 2, 2, 4, 2, 4, 5, 5, 1, 4, 1, 5, 3, 5, 1, 4, 2, 1, 2, 2, 2, 4, 4, 4, 4, 2, 1, 1, 4, 5, 4, 1, 2, 2, 3, 5, 6, 4, 1, 1, 1, 3, 6, 1, 2, 4, 3, 2, 3, 2, 3, 6, 6, 3, 4, 4, 4, 6, 6, 2, 6, 6, 3, 2, 3, 5, 1, 2, 4, 1, 3, 5, 5, 1, 2, 5, 1, 5, 6, 2, 6, 2, 1, 1, 4, 4, 2, 1, 5, 2, 3, 4, 4, 2, 5, 2, 5, 5, 5, 3, 1, 4, 6, 6, 5, 5, 1, 3, 3, 6, 5, 6, 2, 1, 1, 1, 5, 4, 3, 1, 1, 2, 1, 3, 1, 6, 1, 5, 1, 2, 6, 1, 2, 2, 2, 5, 1, 2, 6, 5, 2, 2, 1, 3, 6, 2, 6, 1, 1, 6, 3, 5, 2, 6, 3, 1, 1, 4, 3, 5, 2, 3, 2, 4, 5, 1, 2, 5, 5, 3, 1, 4, 4, 5, 5, 5, 3, 2, 1, 3, 1, 3, 2, 2, 5, 6, 5, 2, 2, 6, 4, 1, 4, 2, 3, 5, 2, 5, 5, 6, 4, 6, 4, 3, 5, 4, 3, 5, 2, 6, 5, 5, 5, 1, 4, 6, 5, 3, 5, 5, 4, 5, 4, 4, 3, 1, 6, 4, 1, 5, 5, 6, 3, 2, 4, 3, 4, 4, 4, 5, 3, 3, 4, 2, 5, 3, 6, 1, 4, 5, 5, 6, 1, 4, 1, 1, 2, 2, 1, 3, 5, 1, 1, 2, 1, 2, 1, 1, 2, 3, 1, 3, 5, 5, 6, 4, 3, 5, 6, 1, 3, 4, 5, 6, 3, 1, 5, 4, 2, 3, 2, 6, 4, 6, 6, 6, 4, 1, 5, 1, 6, 4, 6, 6, 1, 3, 1, 4, 6, 2, 1, 4, 2, 4, 4, 4, 6, 6, 1, 6, 3, 6, 5, 3, 5, 3, 5, 6, 6, 1, 6, 2, 2, 1, 6, 1, 1, 1, 6, 3, 3, 6, 5, 1, 1, 4, 4, 2, 6, 5, 3, 4, 6, 5, 4, 2, 2, 1, 5, 3, 5, 5, 5, 4, 4, 6, 4, 4, 3, 1, 1, 6, 2, 3, 3, 3, 6, 5, 2, 1, 3, 1, 4, 4, 2, 3, 1, 2, 6, 1, 6, 4, 4, 3, 1, 4, 6, 1, 5, 4, 5, 3, 2, 2, 5, 5, 3, 6, 1, 2, 5, 5, 5, 4, 4, 4, 5, 1, 2, 4, 1, 6, 4, 3, 4, 4, 2, 4, 3, 4, 3, 5, 2, 3, 2, 3, 6, 6, 5, 2, 5, 5, 1, 4, 3, 5, 6, 5, 5, 1, 5, 3, 1, 3, 2, 2, 5, 6, 2, 6, 6, 4, 5, 2, 3, 1, 5, 5, 2, 2, 6, 5, 2, 5, 5, 3, 4, 6, 2, 1, 5, 6, 3, 2, 3, 2, 6, 6, 1, 4, 6, 5, 6, 6, 6, 5, 6, 6, 3, 6, 6, 4, 5, 5, 4, 6, 5, 2, 6, 6, 3, 3, 3, 3, 6, 5, 5, 6, 1, 3, 6, 1, 1, 1, 3, 4, 4, 4, 1, 4, 6, 6, 1, 5, 4, 1, 3, 2, 4, 5, 3, 6, 2, 3, 3, 3, 4, 5, 3, 2, 4, 4, 2, 3, 6, 4, 6, 6, 1, 2, 1, 2, 3, 1, 6, 5, 4, 4, 4, 5, 6, 6, 1, 5, 4, 1, 4, 3, 2, 1, 3, 2, 3, 1, 6, 5, 2, 3, 6, 6, 1, 1, 5, 2, 2, 1, 3, 2, 5, 2, 6, 5, 4, 5, 2, 2, 1, 6, 3, 1, 5, 1, 6, 4, 6, 3, 3, 1, 1, 4, 4, 6, 4, 2, 1, 6, 2, 4, 3, 4, 4, 5, 5, 2, 1, 4, 3, 5, 6, 6, 6, 2, 5, 6, 2, 3, 2, 4, 5, 6, 3, 3, 5, 4, 1, 1, 1, 2, 5, 6, 1, 4, 5, 3, 4, 2, 1, 6, 6, 4, 2, 6, 4, 3, 1, 2, 4, 2, 4, 6, 5, 6, 5, 6, 4, 4, 1, 2, 4, 6, 6, 1, 5, 2, 3, 2, 1, 5, 4, 1, 4, 4, 3, 6, 4, 6, 1, 6, 6, 2, 3, 5, 4, 3, 2, 1, 4, 3, 2, 2, 4, 5, 2, 1, 6, 1, 6, 1, 5, 1, 3, 1, 1, 6, 5, 6, 6, 6, 4, 6, 3, 4, 1, 4, 1, 1, 6, 3, 1, 3, 3, 4, 5, 2, 5, 4, 3, 1, 5, 5, 6, 6, 6, 5, 3, 6, 2, 4, 5, 6, 2, 3, 2, 3, 1, 3, 6, 4, 4, 5, 5, 5, 3, 1, 1, 6, 1, 4, 1, 2, 3, 3, 2, 3, 4, 1]
+        # train_seq = EmissionSequence(sigma, tr)
+        # test_seq = EmissionSequence(sigma, [4, 6, 1, 1, 5, 2, 5, 3, 4, 2, 1, 6, 1, 5, 5, 5, 6, 2, 4, 3, 4, 3, 4, 1, 3, 4, 2, 2, 3, 3, 2, 6, 6, 3, 6, 4, 1, 4, 4, 4, 6, 2, 1, 1, 2, 2, 2, 3, 5, 1, 2, 1, 4, 2, 6, 1, 6, 4, 4, 1, 1, 4, 6, 5, 1, 2, 5, 6, 3, 5, 1, 1, 2, 2, 1, 1, 5, 4, 6, 6, 3, 5, 4, 4, 4, 3, 3, 6, 6, 2, 1, 2, 1, 3, 2, 6, 2, 4, 2, 4])
+        # test_vit = []
 
-    ### //////////////////////////////////////////////
-    ### example from ghmm.org
-    print '//////////////////////////////////////////////'
-    print 'example from ghmm.org'
+        # m = ghmm_matrix(sigma, A, B, pi, train_seq, test_seq)
+        ### //////////////////////////////////////////////
 
-    sigma = IntegerRange(1, 7)
-    A = [[0.9, 0.1], [0.3, 0.7]]
-    efair = [1.0 / 6] * 6
-    eloaded = [3.0 / 13, 3.0 / 13, 2.0 / 13, 2.0 / 13, 2.0 / 13, 1.0 / 13]
-    B = [efair, eloaded]
-    pi = [0.5] * 2
-    tr = [1, 6, 2, 5, 5, 4, 5, 1, 2, 1, 3, 6, 6, 3, 2, 1, 4, 4, 1, 1, 4, 2, 1, 1, 6, 3, 3, 2, 1, 4, 4, 3, 3, 5, 3, 3, 3, 3, 4, 3, 1, 5, 4, 1, 4, 5, 1, 1, 3, 4, 3, 5, 5, 1, 5, 2, 1, 5, 3, 6, 3, 6, 5, 6, 5, 3, 3, 1, 2, 6, 3, 3, 2, 2, 5, 4, 1, 5, 6, 3, 3, 5, 1, 5, 2, 3, 1, 1, 1, 5, 6, 4, 5, 5, 1, 6, 2, 6, 5, 3, 1, 1, 3, 3, 1, 1, 2, 5, 2, 3, 2, 4, 1, 5, 5, 5, 4, 6, 5, 6, 3, 1, 6, 1, 5, 4, 3, 1, 3, 1, 2, 6, 3, 5, 2, 1, 3, 6, 4, 4, 4, 4, 3, 5, 1, 6, 4, 4, 3, 5, 1, 5, 5, 5, 5, 6, 5, 1, 6, 1, 1, 4, 1, 4, 2, 6, 6, 2, 5, 4, 5, 5, 4, 3, 3, 6, 5, 4, 1, 5, 3, 3, 3, 2, 5, 6, 2, 3, 3, 5, 1, 3, 4, 5, 1, 6, 3, 2, 4, 5, 2, 2, 5, 1, 4, 5, 1, 5, 6, 5, 3, 4, 6, 1, 3, 2, 4, 6, 6, 3, 1, 6, 5, 2, 5, 4, 4, 4, 4, 2, 6, 3, 3, 2, 1, 1, 6, 5, 3, 3, 3, 4, 5, 6, 1, 6, 2, 3, 1, 4, 6, 5, 3, 1, 2, 4, 6, 2, 6, 2, 1, 2, 6, 5, 6, 1, 4, 4, 1, 5, 5, 5, 3, 4, 4, 5, 2, 2, 5, 1, 2, 1, 3, 2, 3, 3, 3, 5, 3, 5, 2, 3, 5, 5, 5, 2, 6, 2, 5, 6, 4, 5, 4, 4, 3, 3, 6, 2, 3, 2, 2, 6, 1, 1, 1, 4, 1, 2, 6, 1, 4, 5, 2, 6, 2, 6, 6, 3, 2, 4, 2, 2, 2, 3, 3, 4, 4, 1, 1, 1, 5, 3, 4, 3, 5, 3, 3, 3, 4, 6, 1, 1, 6, 4, 2, 4, 6, 4, 1, 5, 1, 4, 5, 5, 4, 6, 1, 3, 5, 1, 5, 3, 1, 6, 6, 3, 3, 2, 4, 4, 3, 1, 2, 5, 3, 5, 4, 5, 3, 2, 2, 6, 4, 4, 2, 6, 4, 6, 1, 4, 6, 3, 3, 4, 6, 3, 2, 3, 5, 3, 5, 4, 2, 2, 2, 1, 4, 1, 5, 1, 1, 1, 6, 6, 3, 4, 4, 5, 1, 2, 4, 3, 3, 1, 1, 5, 6, 1, 3, 4, 6, 2, 4, 5, 2, 1, 1, 2, 6, 5, 4, 3, 5, 4, 5, 2, 5, 1, 1, 5, 4, 3, 6, 5, 3, 6, 4, 2, 3, 5, 1, 4, 6, 1, 2, 6, 1, 3, 5, 2, 1, 2, 6, 1, 2, 5, 4, 4, 5, 5, 1, 4, 3, 1, 6, 5, 4, 3, 4, 2, 4, 2, 6, 6, 3, 3, 6, 1, 5, 6, 4, 1, 3, 2, 2, 1, 3, 4, 6, 3, 5, 5, 1, 5, 5, 2, 5, 3, 3, 1, 3, 4, 2, 1, 1, 2, 1, 5, 1, 5, 4, 2, 6, 3, 5, 6, 6, 2, 2, 5, 6, 1, 5, 3, 1, 2, 1, 2, 3, 4, 5, 5, 4, 3, 3, 3, 4, 6, 2, 5, 2, 5, 5, 3, 1, 4, 3, 6, 2, 5, 6, 3, 4, 2, 6, 2, 5, 1, 3, 1, 2, 2, 1, 4, 1, 6, 1, 4, 5, 5, 5, 2, 3, 2, 5, 1, 6, 2, 5, 5, 1, 4, 4, 6, 1, 3, 1, 1, 4, 3, 1, 2, 1, 1, 1, 4, 2, 2, 2, 1, 2, 3, 5, 5, 4, 4, 4, 6, 3, 6, 4, 3, 5, 2, 4, 4, 5, 6, 2, 6, 5, 5, 3, 1, 5, 4, 4, 1, 5, 3, 3, 1, 2, 6, 3, 6, 6, 6, 6, 1, 1, 3, 2, 5, 6, 4, 3, 4, 6, 5, 2, 2, 1, 2, 5, 5, 6, 1, 5, 2, 5, 6, 2, 4, 5, 4, 2, 5, 5, 4, 3, 4, 1, 6, 1, 1, 6, 2, 2, 1, 3, 4, 3, 1, 1, 6, 1, 1, 1, 4, 4, 4, 1, 5, 6, 4, 4, 2, 1, 4, 6, 6, 2, 3, 6, 2, 4, 3, 4, 3, 3, 3, 4, 1, 2, 4, 3, 3, 6, 2, 4, 1, 1, 2, 5, 4, 6, 3, 1, 2, 1, 3, 2, 1, 3, 6, 2, 2, 2, 5, 1, 1, 6, 6, 6, 1, 4, 2, 6, 2, 3, 3, 2, 4, 1, 2, 5, 2, 6, 3, 5, 6, 2, 1, 3, 6, 5, 1, 4, 1, 4, 6, 4, 4, 4, 2, 2, 3, 6, 4, 6, 5, 4, 2, 2, 5, 5, 3, 4, 2, 3, 3, 6, 6, 3, 1, 5, 5, 5, 6, 4, 2, 6, 5, 4, 5, 6, 3, 1, 1, 5, 4, 5, 5, 3, 5, 3, 2, 2, 1, 3, 3, 6, 5, 3, 5, 1, 2, 5, 2, 4, 1, 5, 2, 1, 2, 5, 3, 1, 3, 4, 4, 1, 5, 1, 3, 1, 2, 6, 3, 6, 1, 3, 5, 2, 6, 6, 5, 2, 3, 6, 3, 3, 4, 5, 1, 6, 4, 2, 4, 1, 4, 3, 3, 4, 2, 3, 1, 6, 2, 4, 3, 5, 2, 2, 4, 5, 1, 3, 2, 2, 1, 6, 3, 2, 1, 2, 1, 5, 4, 2, 1, 4, 5, 5, 3, 4, 4, 6, 5, 3, 6, 5, 3, 6, 5, 6, 3, 3, 5, 3, 3, 2, 4, 2, 6, 3, 2, 6, 5, 5, 5, 3, 3, 1, 2, 5, 1, 3, 6, 3, 3, 5, 1, 4, 4, 4, 2, 3, 4, 2, 6, 1, 6, 1, 4, 3, 2, 1, 3, 5, 4, 6, 5, 6, 6, 6, 4, 2, 4, 3, 5, 1, 1, 1, 5, 4, 6, 2, 2, 4, 3, 2, 1, 6, 2, 1, 6, 1, 6, 5, 1, 6, 4, 3, 6, 5, 4, 4, 1, 3, 4, 3, 1, 6, 4, 4, 2, 1, 2, 5, 5, 1, 4, 3, 2, 3, 2, 1, 4, 6, 3, 6, 6, 1, 5, 3, 6, 1, 3, 6, 6, 5, 3, 2, 4, 6, 2, 4, 4, 4, 2, 4, 4, 3, 6, 5, 3, 4, 1, 3, 3, 1, 6, 1, 4, 1, 6, 3, 5, 2, 1, 5, 4, 2, 4, 6, 1, 4, 3, 1, 1, 3, 2, 5, 5, 1, 1, 5, 3, 4, 3, 1, 3, 2, 5, 6, 2, 1, 3, 2, 6, 3, 6, 4, 4, 3, 5, 3, 2, 5, 2, 3, 2, 4, 2, 6, 2, 4, 6, 5, 5, 2, 3, 5, 6, 4, 3, 1, 3, 3, 2, 2, 2, 3, 6, 1, 6, 3, 1, 6, 3, 1, 3, 1, 1, 1, 4, 3, 1, 5, 4, 6, 2, 1, 6, 2, 2, 2, 1, 5, 5, 1, 2, 5, 5, 2, 5, 2, 4, 5, 1, 5, 5, 6, 6, 5, 3, 5, 6, 2, 5, 5, 5, 1, 2, 2, 4, 2, 4, 5, 5, 1, 4, 1, 5, 3, 5, 1, 4, 2, 1, 2, 2, 2, 4, 4, 4, 4, 2, 1, 1, 4, 5, 4, 1, 2, 2, 3, 5, 6, 4, 1, 1, 1, 3, 6, 1, 2, 4, 3, 2, 3, 2, 3, 6, 6, 3, 4, 4, 4, 6, 6, 2, 6, 6, 3, 2, 3, 5, 1, 2, 4, 1, 3, 5, 5, 1, 2, 5, 1, 5, 6, 2, 6, 2, 1, 1, 4, 4, 2, 1, 5, 2, 3, 4, 4, 2, 5, 2, 5, 5, 5, 3, 1, 4, 6, 6, 5, 5, 1, 3, 3, 6, 5, 6, 2, 1, 1, 1, 5, 4, 3, 1, 1, 2, 1, 3, 1, 6, 1, 5, 1, 2, 6, 1, 2, 2, 2, 5, 1, 2, 6, 5, 2, 2, 1, 3, 6, 2, 6, 1, 1, 6, 3, 5, 2, 6, 3, 1, 1, 4, 3, 5, 2, 3, 2, 4, 5, 1, 2, 5, 5, 3, 1, 4, 4, 5, 5, 5, 3, 2, 1, 3, 1, 3, 2, 2, 5, 6, 5, 2, 2, 6, 4, 1, 4, 2, 3, 5, 2, 5, 5, 6, 4, 6, 4, 3, 5, 4, 3, 5, 2, 6, 5, 5, 5, 1, 4, 6, 5, 3, 5, 5, 4, 5, 4, 4, 3, 1, 6, 4, 1, 5, 5, 6, 3, 2, 4, 3, 4, 4, 4, 5, 3, 3, 4, 2, 5, 3, 6, 1, 4, 5, 5, 6, 1, 4, 1, 1, 2, 2, 1, 3, 5, 1, 1, 2, 1, 2, 1, 1, 2, 3, 1, 3, 5, 5, 6, 4, 3, 5, 6, 1, 3, 4, 5, 6, 3, 1, 5, 4, 2, 3, 2, 6, 4, 6, 6, 6, 4, 1, 5, 1, 6, 4, 6, 6, 1, 3, 1, 4, 6, 2, 1, 4, 2, 4, 4, 4, 6, 6, 1, 6, 3, 6, 5, 3, 5, 3, 5, 6, 6, 1, 6, 2, 2, 1, 6, 1, 1, 1, 6, 3, 3, 6, 5, 1, 1, 4, 4, 2, 6, 5, 3, 4, 6, 5, 4, 2, 2, 1, 5, 3, 5, 5, 5, 4, 4, 6, 4, 4, 3, 1, 1, 6, 2, 3, 3, 3, 6, 5, 2, 1, 3, 1, 4, 4, 2, 3, 1, 2, 6, 1, 6, 4, 4, 3, 1, 4, 6, 1, 5, 4, 5, 3, 2, 2, 5, 5, 3, 6, 1, 2, 5, 5, 5, 4, 4, 4, 5, 1, 2, 4, 1, 6, 4, 3, 4, 4, 2, 4, 3, 4, 3, 5, 2, 3, 2, 3, 6, 6, 5, 2, 5, 5, 1, 4, 3, 5, 6, 5, 5, 1, 5, 3, 1, 3, 2, 2, 5, 6, 2, 6, 6, 4, 5, 2, 3, 1, 5, 5, 2, 2, 6, 5, 2, 5, 5, 3, 4, 6, 2, 1, 5, 6, 3, 2, 3, 2, 6, 6, 1, 4, 6, 5, 6, 6, 6, 5, 6, 6, 3, 6, 6, 4, 5, 5, 4, 6, 5, 2, 6, 6, 3, 3, 3, 3, 6, 5, 5, 6, 1, 3, 6, 1, 1, 1, 3, 4, 4, 4, 1, 4, 6, 6, 1, 5, 4, 1, 3, 2, 4, 5, 3, 6, 2, 3, 3, 3, 4, 5, 3, 2, 4, 4, 2, 3, 6, 4, 6, 6, 1, 2, 1, 2, 3, 1, 6, 5, 4, 4, 4, 5, 6, 6, 1, 5, 4, 1, 4, 3, 2, 1, 3, 2, 3, 1, 6, 5, 2, 3, 6, 6, 1, 1, 5, 2, 2, 1, 3, 2, 5, 2, 6, 5, 4, 5, 2, 2, 1, 6, 3, 1, 5, 1, 6, 4, 6, 3, 3, 1, 1, 4, 4, 6, 4, 2, 1, 6, 2, 4, 3, 4, 4, 5, 5, 2, 1, 4, 3, 5, 6, 6, 6, 2, 5, 6, 2, 3, 2, 4, 5, 6, 3, 3, 5, 4, 1, 1, 1, 2, 5, 6, 1, 4, 5, 3, 4, 2, 1, 6, 6, 4, 2, 6, 4, 3, 1, 2, 4, 2, 4, 6, 5, 6, 5, 6, 4, 4, 1, 2, 4, 6, 6, 1, 5, 2, 3, 2, 1, 5, 4, 1, 4, 4, 3, 6, 4, 6, 1, 6, 6, 2, 3, 5, 4, 3, 2, 1, 4, 3, 2, 2, 4, 5, 2, 1, 6, 1, 6, 1, 5, 1, 3, 1, 1, 6, 5, 6, 6, 6, 4, 6, 3, 4, 1, 4, 1, 1, 6, 3, 1, 3, 3, 4, 5, 2, 5, 4, 3, 1, 5, 5, 6, 6, 6, 5, 3, 6, 2, 4, 5, 6, 2, 3, 2, 3, 1, 3, 6, 4, 4, 5, 5, 5, 3, 1, 1, 6, 1, 4, 1, 2, 3, 3, 2, 3, 4, 1]
-    train_seq = EmissionSequence(sigma, tr)
-    test_seq = EmissionSequence(sigma, [4, 6, 1, 1, 5, 2, 5, 3, 4, 2, 1, 6, 1, 5, 5, 5, 6, 2, 4, 3, 4, 3, 4, 1, 3, 4, 2, 2, 3, 3, 2, 6, 6, 3, 6, 4, 1, 4, 4, 4, 6, 2, 1, 1, 2, 2, 2, 3, 5, 1, 2, 1, 4, 2, 6, 1, 6, 4, 4, 1, 1, 4, 6, 5, 1, 2, 5, 6, 3, 5, 1, 1, 2, 2, 1, 1, 5, 4, 6, 6, 3, 5, 4, 4, 4, 3, 3, 6, 6, 2, 1, 2, 1, 3, 2, 6, 2, 4, 2, 4])
-    test_vit = []
 
-    m = ghmm_matrix(sigma, A, B, pi)
-    ghmm_train(m, train_seq)
-    ghmm_viterbi(sigma, m, test_seq)
-
-    ### //////////////////////////////////////////////
 
 if __name__ == '__main__':
-    project()
+    
+    # packages = ['ghmm', 'pomegranate']
+    # packages = ['ghmm']
+    packages = ['pomegranate']
+
+    data = elaborate_dataset()
+    house_name = data[0]
+    path_adls = data[1]
+    list_adls = data[2]
+    p_adls = data[3]
+    t_adls = data[4]
+    path_sens = data[5]
+    list_sens = data[6]
+    sens_seq = data[7]
+    o_sens_adls = data[8]
+
+    for package in packages:
+
+        if package == 'ghmm':
+            from ghmm import *
+        
+        if package == 'pomegranate':
+            from pomegranate import *
+            import random
+            import math
+        
+        model_hmm(package, house_name, path_adls, list_adls, p_adls, t_adls, path_sens, list_sens, sens_seq, o_sens_adls)
