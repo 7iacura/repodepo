@@ -70,7 +70,7 @@ Necessari in un \texttt{HMM} sono:
 \section*{Il Software}
 Il software è stato sviluppato in \texttt{Python}, e permette di creare un \texttt{HMM} partendo da una sequenza di rilevazioni prese dal dataset di un appartamento. 
 
-Si è deciso di trasformare le rilevazioni dal formato testuale fornito \texttt{.txt} in un formato più compatto ed ordinato, il \texttt{csv}. Come verrà spiegato dettagliatamente nel paragrafo successivo, il software analizza il file e calcola le probabilità iniziali, di transizione degli stati e di emissione degli eventi in base alle occorrenze all'interno del file. Successivamente, il software si avvale di una libreria free di nome \texttt{GHMM}, in grado di creare modelli \texttt{HMM}, fare del \emph{training} su di essi e permette inoltre di inferire sul modello creato.
+Si è deciso di trasformare le rilevazioni dal formato testuale fornito \texttt{.txt} in un formato più compatto ed ordinato, il \texttt{csv}. Come verrà spiegato dettagliatamente nel paragrafo successivo, il software analizza il file e calcola le probabilità iniziali, di transizione degli stati e di emissione degli eventi in base alle occorrenze all'interno del file. Successivamente, il software si avvarrà di 2 librerie  free di nome \texttt{GHMM} e \texttt{Pomegranate}, in grado di creare modelli \texttt{HMM}, fare del \emph{training} su di essi e permette inoltre di inferire sul modello creato.
 
 %Su ogni file sono stati svolti controlli di consistenza sui dati rilevati (se il timestamp di inizio rilevazione è inferiore alla fine, se gli eventi sono temporalmente consecutivi ecc...).
 Per la lettura del file dei sensori, la tripla \texttt{Location-Type-Place} è stata utilizzata come chiave univoca per la definizione delle emissioni, che vengono quindi considerate come stati distinti per ogni nuova tripla rilevata all'interno del file.
@@ -97,7 +97,42 @@ Permette di ricavare la matrice delle transizioni per le \texttt{ADLs}. Conta, o
 A partire dal file in input ricava la lista dei sensori attivati durante le rilevazioni (composti dalla tripla univoca \texttt{Location-Type-Place}) e l'elenco con cui sono stati attivati.
 
 \subsection*{obtain\_o\_sens\_adls}
+La funzione permette di ricavare le probabilità di emissione dalle \texttt{ADLs} ali sensori. Viene tenuto conto di tutte le volte che l'intervallo di tempo di una rilevazione del sensore cade all'interno della rilevazione di un'attività. La matrice ottenuta dovrà infine essere normalizzata.
 
+\section*{Librerie utilizzate}
+Come precedentemente detto, è stato deciso di utilizzare l'approccio con diverse librerie. Con \texttt{GHMM} è stato creato il modello \texttt{HMM} ed è stata fatta inferenza utilizzando \texttt{Viterbi}, ma le analisi più dettagliate sui risultati sono state fatte con \texttt{Pomegranate}.
+\subsection*{GHMM}
+La libreria \texttt{GHMM}, dati un alfabeto di emissioni \texttt{sigma}, una distribuzione discreta su di esso, la matrice di transizione delle \texttt{ADLs}, le loro probabilità iniziali e le probabilità di emissione dei sensori per ogni attività, permette di creare un \texttt{HMM}. Successivamente, con \texttt{Viterbi}, data una sequenza di rilevazioni di sensori viene calcolato quanto il modello è abile a rilevare l'attività corretta.
+\subsection*{Pomegranate}
+\texttt{Pomegranate} è un package che permette di creare modelli probabilistici dalle \texttt{Reti Bayesiane} a \texttt{HMM}. E' un'estensione del package \texttt{YAHMM}. Per utilizzare un \texttt{HMM} è necessario chiamare la funzione: 
+\begin{center}\begin{addmargin}[2em]{2em}
+\texttt{model = HiddenMarkovModel( name="Model-name" )}
+\end{addmargin}\end{center}
+
+
+
+
+ Il package caratterizza ogni stato  nascosto e le sue emissioni con la seguente sintassi:
+\begin{center}\begin{addmargin}[2em]{2em}
+\texttt{ADL1 = State( DiscreteDistribution({ 'sens1': 0.1, 'sens2': 0.4, 'sens3': 0.5 }), name='ADL1' )}
+\end{addmargin}\end{center}
+Dopodichè, è necessario definire le probabilità iniziali come segue:
+\begin{center}\begin{addmargin}[2em]{2em}
+\texttt{model.add\_transition( model.start, ADL1, 0.6 )}
+\end{addmargin}\end{center}
+e le probabilità di transizione tra gli stati nel seguente modo:
+\begin{center}\begin{addmargin}[2em]{2em}
+\texttt{model.add\_transition( ADL1, ADL2, 0.65 )}
+\end{addmargin}\end{center}
+
+Successivamente, dopo la chiamata \texttt{model.bake()}, che permette l'effettiva elaborazione dei dati forniti per la creazione del \texttt{HMM} è possibile fare diversi tipi di inferenze sul modello. Come \texttt{forward},\texttt{backward},\texttt{forward-backward} e \texttt{Viterbi}.
+
+\section*{Esecuzione e stime}
+
+Una volta generato il nostro modello, utilizzeremo \texttt{Viterbi} dando in input al comando \texttt{model.viterbi(sequence)} la sequenza di sensori utilizzata in origine per stimare le probabilità del modello. In questo modo possiamo verificare se la sequenza di \texttt{ADLs} risultante è coerente con quella della \texttt{Grounf Truth}.
+
+\subsection*{Parametri di affidabilità}
+(da finire una volta implementati i metodi)
 
 
 
