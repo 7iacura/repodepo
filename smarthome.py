@@ -167,6 +167,7 @@ def obtain_p_adls(path_file, house_name):
     tot_rows = len(open(path_file+'.csv').readlines())
     list_adls = []
     p_adls = []
+    seq_adls = []
     with open(path_file+'.csv', 'rb') as csvfile:
         reader = csv.reader(csvfile, dialect='excel', delimiter='\t')
         for row in reader:
@@ -176,13 +177,15 @@ def obtain_p_adls(path_file, house_name):
                 if (a == adl):
                     p_adls[c] += 1
                     exist_adl = True
+                    seq_adls.append(c)
             if not exist_adl:
                 list_adls.append(adl)
                 p_adls.append(1)
+                seq_adls.append(len(list_adls)-1)
         normalize_list(p_adls)
     print '%s: P(ADLs) calculated' %house_name
     csv_list(list_adls, p_adls, house_name+'_P(ADLs)')
-    return list_adls, p_adls
+    return list_adls, p_adls, seq_adls
 
 ### obtain probability of transition between adls
 ### return [t_adls] = [matrix] = matrix with transition probabilities
@@ -223,7 +226,7 @@ def obtain_list_sens(path_file, house_name):
     ### build list of all possible triple Location-Type-Place
     ### ad save the order of sensors detections
     list_sens = []
-    sens_seq = []
+    seq_sens = []
     with open(path_file+'.csv', 'rb') as csvfile:
         reader = csv.reader(csvfile, dialect='excel', delimiter='\t')
         for row in reader:
@@ -232,11 +235,11 @@ def obtain_list_sens(path_file, house_name):
             for c, s in enumerate(list_sens):
                 if s == sens:
                     exist_sens = True
-                    sens_seq.append(c)
+                    seq_sens.append(c)
             if not exist_sens:
                 list_sens.append(sens)
-                sens_seq.append(len(list_sens)-1)
-    return list_sens, sens_seq
+                seq_sens.append(len(list_sens)-1)
+    return list_sens, seq_sens
 
 ###
 def verbose_sequence_to_int(list_name, verb_sequence):
@@ -296,64 +299,230 @@ def obtain_o_sens_adls(path_adls, list_adls, path_sens, list_sens, house_name):
     csv_matrix(list_adls, list_sens, matrix, house_name+'_O(Sens|ADLs)')
     return matrix
 
+def remove_repetitions(seq):
+    new_seq = []
+    for x, s in enumerate(seq):
+        if x == 0:
+            new_seq.append(seq[x])
+        else:
+            if seq[x] != seq[x-1]:
+                new_seq.append(seq[x])
+    return new_seq
+
+def diff_base(seq1, seq2):
+    n_diffs = 0
+    if len(seq1) < len(seq2):
+        l = len(seq1)-1
+    else:
+        l = len(seq2)-1
+    for x in range(l):
+        mismatch = ( seq1[x] != seq2[x] )
+        if mismatch:
+            n_diffs += 1
+        print '%s \t %s \t:%s' %(seq1[x], seq2[x], not mismatch)
+    print 'n total diffs: %s' %n_diffs
+    return n_diffs
+
+# def compare(seq1, seq2, p1, p2, p_diff):
+
+#     try:
+#         xm1 = seq2[p2-1]
+#         bxm1 = True
+#     except IndexError:
+#         bxm1 = False
+#     try:
+#         xp1 = seq2[p2+1]
+#         bxp1 = True
+#     except IndexError:
+#         bxp1 = False
+#     try:
+#         xm2 = seq2[p2-2]
+#         bxm2 = True
+#     except IndexError:
+#         bxm2 = False
+#     try:
+#         xp2 = seq2[p2+2]
+#         bxp2 = True
+#     except IndexError:
+#         bxp2 = False
+#     try:
+#         xm3 = seq2[p2-3]
+#         bxm3 = True
+#     except IndexError:
+#         bxm3 = False
+#     try:
+#         xp3 = seq2[p2+3]
+#         bxp3 = True
+#     except IndexError:
+#         bxp3 = False
+
+#     if seq1[p1] == seq2[p2]:
+#         p_diff += 1.0
+#         return p2, p_diff
+#     if bxm1:
+#         if seq1[p1] == seq2[xm1]:
+#             p_diff += 0.8
+#             return xm1, p_diff
+#     if bxp1:
+#         if seq1[p1] == seq2[xp1]:
+#             p_diff += 0.8
+#             return xp1, p_diff
+#     if bxm2:
+#         if seq1[p1] == seq2[xm2]:
+#             p_diff += 0.6
+#             return xm2, p_diff
+#     if bxp2:
+#         if seq1[p1] == seq2[xp2]:
+#             p_diff += 0.6
+#             return xp2, p_diff
+#     if bxm3:
+#         if seq1[p1] == seq2[xm3]:
+#             p_diff += 0.4
+#             return xm3, p_diff
+#     if bxp3:
+#         if seq1[p1] == seq2[xp3]:
+#             p_diff += 0.4
+#             return xp3, p_diff
+
+#     return xp, p_diff+=0.001
+
+
+# def diff_A(seq1, seq2):
+#     p_diff = 0
+#     len1 = len(seq1)
+#     len2 = len(seq2)
+
+#     try:
+#         y = 0
+#         for x in len1:
+#             y = compare(seq1, seq2, x, y, p_diff)
+#     except StopIteration:
+#         print 'ops'
+
+
+def compare(seq1, seq2, x, p_diff):
+
+    try:
+        xm1 = seq2[x-1]
+        bxm1 = True
+    except IndexError:
+        bxm1 = False
+    try:
+        xp1 = seq2[x+1]
+        bxp1 = True
+    except IndexError:
+        bxp1 = False
+    try:
+        xm2 = seq2[x-2]
+        bxm2 = True
+    except IndexError:
+        bxm2 = False
+    try:
+        xp2 = seq2[x+2]
+        bxp2 = True
+    except IndexError:
+        bxp2 = False
+    try:
+        xm3 = seq2[x-3]
+        bxm3 = True
+    except IndexError:
+        bxm3 = False
+    try:
+        xp3 = seq2[x+3]
+        bxp3 = True
+    except IndexError:
+        bxp3 = False
+
+    if seq1[x] == seq2[x]:
+        p_diff += 1.0
+        print '== %s %s' %(seq1[x], p_diff)
+        return p_diff
+    if bxm1:
+        if seq1[x] == seq2[xm1]:
+            p_diff += 0.8
+            print '-1 %s %s' %(seq1[x], p_diff)
+            return p_diff
+    if bxp1:
+        if seq1[x] == seq2[xp1]:
+            p_diff += 0.8
+            print '+1 %s %s' %(seq1[x], p_diff)
+            return p_diff
+    if bxm2:
+        if seq1[x] == seq2[xm2]:
+            p_diff += 0.6
+            print '-2 %s %s' %(seq1[x], p_diff)
+            return p_diff
+    if bxp2:
+        if seq1[x] == seq2[xp2]:
+            p_diff += 0.6
+            print '+2 %s %s' %(seq1[x], p_diff)
+            return p_diff
+    if bxm3:
+        if seq1[x] == seq2[xm3]:
+            p_diff += 0.4
+            print '-3 %s %s' %(seq1[x], p_diff)
+            return p_diff
+    print 'bxp3: %s -> %s - %s' %(bxp3, seq1[x], seq2[xp3])
+    if bxp3:
+        if seq1[x] == seq2[xp3]:
+            p_diff += 0.4
+            print '+3 %s %s' %(seq1[x], p_diff)
+            return p_diff
+    
+    p_diff += 0.001
+    print 'nn %s %s' %(seq1[x], p_diff)
+    return p_diff
+
+def diff_A(seq1, seq2):
+    p_diff = 0
+    y = 0
+
+    last = False
+    iter_seq1 = iter(seq1)
+    for x in range(len(seq1)):
+        try:
+            k = next(iter_seq1)
+            last = False
+        except StopIteration:
+            last = True
+        if not last:
+            p_diff = compare(seq1, seq2, x, p_diff)
+            # print '%s' %k
+            # print p_diff
+            
+
+            
+
+            
+             
+
 def elaborate_dataset():
+    print 
+    for path_file in house:
+        if ('ADLs' in path_file) or ('Sensors' in path_file):
+            check_and_generate_csv(path_file)
 
-    ### dataset is the list of each house analyzed, in each house:
-    ###     house[0] = name house
-    ###     house[1] = Description
-    ###     house[2] = ADLs
-    ###     house[3] = Sensors
+    house_name = house[0]
+    path_adls = house[2]
+    path_sens = house[3]
 
-    # ordonezA = ['Dataset/OrdonezA','Dataset/OrdonezA_Description','Dataset/OrdonezA_ADLs','Dataset/OrdonezA_Sensors']
-    # ordonezA = ['Dataset/OrdonezB','Dataset/OrdonezB_Description','Dataset/OrdonezB_ADLs','Dataset/OrdonezB_Sensors']
-    # dataset = [ordonezA, ordonezB]
+    temp = obtain_p_adls(path_adls, house_name)
+    list_adls = temp[0]
+    p_adls = temp[1]
+    seq_adls = temp[2]
+    t_adls = obtain_t_adls(path_adls, list_adls, house_name)
 
-    test1 = ['Deposet/test1','Deposet/test1_Description','Deposet/test1_ADLs','Deposet/test1_Sensors']
-    test2 = ['Deposet/test2','Deposet/test2_Description','Deposet/test2_ADLs','Deposet/test2_Sensors']
-    dataset = [test1]
+    temp = obtain_list_sens(path_sens, house_name)
+    list_sens = temp[0]
+    seq_sens = temp[1]
+    o_sens_adls = obtain_o_sens_adls(path_adls, list_adls, path_sens, list_sens, house_name)
 
-    for house in dataset:
-        print 
-        # for path_file in house:
-            ### check the correctness of file
-            # if ('ADLs' in path_file) or ('Sensors' in path_file):
-                # check_and_generate_csv(path_file)
+    return house_name, path_adls, list_adls, p_adls, seq_adls, t_adls, path_sens, list_sens, seq_sens, o_sens_adls
 
-        house_name = house[0]
-        path_adls = house[2]
-        path_sens = house[3]
 
-        temp = obtain_p_adls(path_adls, house_name)
-        list_adls = temp[0]
-        p_adls = temp[1]
-        t_adls = obtain_t_adls(path_adls, list_adls, house_name)
+def model_hmm(package, house_name, path_adls, list_adls, p_adls, seq_adls, t_adls, path_sens, list_sens, seq_sens, o_sens_adls):
 
-        temp = obtain_list_sens(path_sens, house_name)
-        list_sens = temp[0]
-        sens_seq = temp[1]
-        o_sens_adls = obtain_o_sens_adls(path_adls, list_adls, path_sens, list_sens, house_name)
-
-        return house_name, path_adls, list_adls, p_adls, t_adls, path_sens, list_sens, sens_seq, o_sens_adls
-
-def ghmm(sigma, A, B, pi, train_seq, test_seq):
-    m = HMMFromMatrices(sigma, DiscreteDistribution(sigma), A, B, pi)
-    print '\n', m
-
-    m.baumWelch(train_seq)
-    print 'trained with baumWelch method\n'
-
-    vt = m.viterbi(test_seq)
-    print 'analyzed >test_seq< with viterbi algorithm\n', vt
-
-    # my_seq = EmissionSequence(sigma, [1] * 20 + [6] * 10 + [1] * 40)
-    # vm = m.viterbi(my_seq)
-    # print
-    # print 'analyzed >my_seq< with viterbi algorithm\n', vm
-
-    return m
-
-def model_hmm(package, house_name, path_adls, list_adls, p_adls, t_adls, path_sens, list_sens, sens_seq, o_sens_adls):
-
+    ### pomegranate
     if package == 'pomegranate':
 
         model = HiddenMarkovModel( name="Smarthome" )
@@ -374,103 +543,82 @@ def model_hmm(package, house_name, path_adls, list_adls, p_adls, t_adls, path_se
         # for state in states:
             # print state
 
-        # model.bake( verbose=True )
         model.bake()
 
-        sequence = []
-        for ss in sens_seq:
-            for y, ls in enumerate(list_sens):
-                if ss == y:
-                    sequence.append(ls)
+        sequence = int_sequence_to_verbose(list_sens, seq_sens)
 
-        # model.fit(sequence, algorithm='baum-welch')
+        full_viterbi_adls = (' '.join( state.name for i, state in model.viterbi( sequence )[1] )).split( )
+        viterbi_adls = remove_repetitions( verbose_sequence_to_int( list_adls, full_viterbi_adls ) )
+        print viterbi_adls
+        print seq_adls
+
+        # diff_base(seq_adls, viterbi_adls)
+        diff_A(seq_adls, viterbi_adls)
 
         # print model.predict(sequence, algorithm='viterbi')
-
+        # print
         # print "\n".join( state.name for i, state in model.viterbi( sequence )[1] )
-
-        sample = verbose_sequence_to_int(list_sens, model.sample(30))
-
+        # int_seq_gen = verbose_sequence_to_int(list_adls, verb_seq_gen)
 
 
 
-        # rainy = State( DiscreteDistribution({ 'walk': 0.1, 'shop': 0.4, 'clean': 0.5 }), name='Rainy' )
-        # sunny = State( DiscreteDistribution({ 'walk': 0.6, 'shop': 0.3, 'clean': 0.1 }), name='Sunny' )
 
-        # model.add_transition( model.start, rainy, 0.6 )
-        # model.add_transition( model.start, sunny, 0.4 )
-        
-        # model.add_transition( rainy, rainy, 0.65 )
-        # model.add_transition( rainy, sunny, 0.25 )
-        # model.add_transition( sunny, rainy, 0.35 )
-        # model.add_transition( sunny, sunny, 0.55 )
-        
-        # model.add_transition( rainy, model.end, 0.1 )
-        # model.add_transition( sunny, model.end, 0.1 )
-        # model.bake( verbose=True )
-            
-        # sequence = [ 'walk', 'shop', 'clean', 'clean', 'clean', 'walk', 'clean' ]
-        
-        # print math.e**model.forward( sequence )[ len(sequence), model.end_index ]
-        # print math.e**model.forward_backward( sequence )[1][ 2, model.states.index( rainy ) ]
-        # print math.e**model.backward( sequence )[ 3, model.states.index( sunny ) ]
-        # print " ".join( state.name for i, state in model.maximum_a_posteriori( sequence )[1] )
-
-
+    ### ghmm
     if package == 'ghmm':
 
-        e = IntegerRange(0, len(list_sens)) ### emission domain
-        # seq_for_training = [1, 2, 3, 4, 5, 6, 7, 8, 6, 7, 9, 10, 3, 11, 3, 4, 12, 12, 6, 11, 4]
-        train = EmissionSequence(e, sens_seq)
-        ts = [0, 1, 2, 3, 4, 5, 6, 7, 5, 6, 4, 9, 2, 10, 2, 3, 11, 11, 5, 10, 3]
-        test = EmissionSequence(e, ts)
+        sigma = IntegerRange(0, len(list_sens)) ### emission domain
     
-        model = ghmm(e, t_adls, o_sens_adls, p_adls, train, test)
+        model = HMMFromMatrices(sigma, DiscreteDistribution(sigma), t_adls, o_sens_adls, p_adls)
+        # print '\n', model
 
-        ### //////////////////////////////////////////////
-        ### example from ghmm.org
-        # print '\n//////////////////////////////////////////////\nexample from ghmm.org'
-        # sigma = IntegerRange(1, 7)
-        # A = [[0.9, 0.1], [0.3, 0.7]]
-        # efair = [1.0 / 6] * 6
-        # eloaded = [3.0 / 13, 3.0 / 13, 2.0 / 13, 2.0 / 13, 2.0 / 13, 1.0 / 13]
-        # B = [efair, eloaded]
-        # pi = [0.5] * 2
-        # tr = [1, 6, 2, 5, 5, 4, 5, 1, 2, 1, 3, 6, 6, 3, 2, 1, 4, 4, 1, 1, 4, 2, 1, 1, 6, 3, 3, 2, 1, 4, 4, 3, 3, 5, 3, 3, 3, 3, 4, 3, 1, 5, 4, 1, 4, 5, 1, 1, 3, 4, 3, 5, 5, 1, 5, 2, 1, 5, 3, 6, 3, 6, 5, 6, 5, 3, 3, 1, 2, 6, 3, 3, 2, 2, 5, 4, 1, 5, 6, 3, 3, 5, 1, 5, 2, 3, 1, 1, 1, 5, 6, 4, 5, 5, 1, 6, 2, 6, 5, 3, 1, 1, 3, 3, 1, 1, 2, 5, 2, 3, 2, 4, 1, 5, 5, 5, 4, 6, 5, 6, 3, 1, 6, 1, 5, 4, 3, 1, 3, 1, 2, 6, 3, 5, 2, 1, 3, 6, 4, 4, 4, 4, 3, 5, 1, 6, 4, 4, 3, 5, 1, 5, 5, 5, 5, 6, 5, 1, 6, 1, 1, 4, 1, 4, 2, 6, 6, 2, 5, 4, 5, 5, 4, 3, 3, 6, 5, 4, 1, 5, 3, 3, 3, 2, 5, 6, 2, 3, 3, 5, 1, 3, 4, 5, 1, 6, 3, 2, 4, 5, 2, 2, 5, 1, 4, 5, 1, 5, 6, 5, 3, 4, 6, 1, 3, 2, 4, 6, 6, 3, 1, 6, 5, 2, 5, 4, 4, 4, 4, 2, 6, 3, 3, 2, 1, 1, 6, 5, 3, 3, 3, 4, 5, 6, 1, 6, 2, 3, 1, 4, 6, 5, 3, 1, 2, 4, 6, 2, 6, 2, 1, 2, 6, 5, 6, 1, 4, 4, 1, 5, 5, 5, 3, 4, 4, 5, 2, 2, 5, 1, 2, 1, 3, 2, 3, 3, 3, 5, 3, 5, 2, 3, 5, 5, 5, 2, 6, 2, 5, 6, 4, 5, 4, 4, 3, 3, 6, 2, 3, 2, 2, 6, 1, 1, 1, 4, 1, 2, 6, 1, 4, 5, 2, 6, 2, 6, 6, 3, 2, 4, 2, 2, 2, 3, 3, 4, 4, 1, 1, 1, 5, 3, 4, 3, 5, 3, 3, 3, 4, 6, 1, 1, 6, 4, 2, 4, 6, 4, 1, 5, 1, 4, 5, 5, 4, 6, 1, 3, 5, 1, 5, 3, 1, 6, 6, 3, 3, 2, 4, 4, 3, 1, 2, 5, 3, 5, 4, 5, 3, 2, 2, 6, 4, 4, 2, 6, 4, 6, 1, 4, 6, 3, 3, 4, 6, 3, 2, 3, 5, 3, 5, 4, 2, 2, 2, 1, 4, 1, 5, 1, 1, 1, 6, 6, 3, 4, 4, 5, 1, 2, 4, 3, 3, 1, 1, 5, 6, 1, 3, 4, 6, 2, 4, 5, 2, 1, 1, 2, 6, 5, 4, 3, 5, 4, 5, 2, 5, 1, 1, 5, 4, 3, 6, 5, 3, 6, 4, 2, 3, 5, 1, 4, 6, 1, 2, 6, 1, 3, 5, 2, 1, 2, 6, 1, 2, 5, 4, 4, 5, 5, 1, 4, 3, 1, 6, 5, 4, 3, 4, 2, 4, 2, 6, 6, 3, 3, 6, 1, 5, 6, 4, 1, 3, 2, 2, 1, 3, 4, 6, 3, 5, 5, 1, 5, 5, 2, 5, 3, 3, 1, 3, 4, 2, 1, 1, 2, 1, 5, 1, 5, 4, 2, 6, 3, 5, 6, 6, 2, 2, 5, 6, 1, 5, 3, 1, 2, 1, 2, 3, 4, 5, 5, 4, 3, 3, 3, 4, 6, 2, 5, 2, 5, 5, 3, 1, 4, 3, 6, 2, 5, 6, 3, 4, 2, 6, 2, 5, 1, 3, 1, 2, 2, 1, 4, 1, 6, 1, 4, 5, 5, 5, 2, 3, 2, 5, 1, 6, 2, 5, 5, 1, 4, 4, 6, 1, 3, 1, 1, 4, 3, 1, 2, 1, 1, 1, 4, 2, 2, 2, 1, 2, 3, 5, 5, 4, 4, 4, 6, 3, 6, 4, 3, 5, 2, 4, 4, 5, 6, 2, 6, 5, 5, 3, 1, 5, 4, 4, 1, 5, 3, 3, 1, 2, 6, 3, 6, 6, 6, 6, 1, 1, 3, 2, 5, 6, 4, 3, 4, 6, 5, 2, 2, 1, 2, 5, 5, 6, 1, 5, 2, 5, 6, 2, 4, 5, 4, 2, 5, 5, 4, 3, 4, 1, 6, 1, 1, 6, 2, 2, 1, 3, 4, 3, 1, 1, 6, 1, 1, 1, 4, 4, 4, 1, 5, 6, 4, 4, 2, 1, 4, 6, 6, 2, 3, 6, 2, 4, 3, 4, 3, 3, 3, 4, 1, 2, 4, 3, 3, 6, 2, 4, 1, 1, 2, 5, 4, 6, 3, 1, 2, 1, 3, 2, 1, 3, 6, 2, 2, 2, 5, 1, 1, 6, 6, 6, 1, 4, 2, 6, 2, 3, 3, 2, 4, 1, 2, 5, 2, 6, 3, 5, 6, 2, 1, 3, 6, 5, 1, 4, 1, 4, 6, 4, 4, 4, 2, 2, 3, 6, 4, 6, 5, 4, 2, 2, 5, 5, 3, 4, 2, 3, 3, 6, 6, 3, 1, 5, 5, 5, 6, 4, 2, 6, 5, 4, 5, 6, 3, 1, 1, 5, 4, 5, 5, 3, 5, 3, 2, 2, 1, 3, 3, 6, 5, 3, 5, 1, 2, 5, 2, 4, 1, 5, 2, 1, 2, 5, 3, 1, 3, 4, 4, 1, 5, 1, 3, 1, 2, 6, 3, 6, 1, 3, 5, 2, 6, 6, 5, 2, 3, 6, 3, 3, 4, 5, 1, 6, 4, 2, 4, 1, 4, 3, 3, 4, 2, 3, 1, 6, 2, 4, 3, 5, 2, 2, 4, 5, 1, 3, 2, 2, 1, 6, 3, 2, 1, 2, 1, 5, 4, 2, 1, 4, 5, 5, 3, 4, 4, 6, 5, 3, 6, 5, 3, 6, 5, 6, 3, 3, 5, 3, 3, 2, 4, 2, 6, 3, 2, 6, 5, 5, 5, 3, 3, 1, 2, 5, 1, 3, 6, 3, 3, 5, 1, 4, 4, 4, 2, 3, 4, 2, 6, 1, 6, 1, 4, 3, 2, 1, 3, 5, 4, 6, 5, 6, 6, 6, 4, 2, 4, 3, 5, 1, 1, 1, 5, 4, 6, 2, 2, 4, 3, 2, 1, 6, 2, 1, 6, 1, 6, 5, 1, 6, 4, 3, 6, 5, 4, 4, 1, 3, 4, 3, 1, 6, 4, 4, 2, 1, 2, 5, 5, 1, 4, 3, 2, 3, 2, 1, 4, 6, 3, 6, 6, 1, 5, 3, 6, 1, 3, 6, 6, 5, 3, 2, 4, 6, 2, 4, 4, 4, 2, 4, 4, 3, 6, 5, 3, 4, 1, 3, 3, 1, 6, 1, 4, 1, 6, 3, 5, 2, 1, 5, 4, 2, 4, 6, 1, 4, 3, 1, 1, 3, 2, 5, 5, 1, 1, 5, 3, 4, 3, 1, 3, 2, 5, 6, 2, 1, 3, 2, 6, 3, 6, 4, 4, 3, 5, 3, 2, 5, 2, 3, 2, 4, 2, 6, 2, 4, 6, 5, 5, 2, 3, 5, 6, 4, 3, 1, 3, 3, 2, 2, 2, 3, 6, 1, 6, 3, 1, 6, 3, 1, 3, 1, 1, 1, 4, 3, 1, 5, 4, 6, 2, 1, 6, 2, 2, 2, 1, 5, 5, 1, 2, 5, 5, 2, 5, 2, 4, 5, 1, 5, 5, 6, 6, 5, 3, 5, 6, 2, 5, 5, 5, 1, 2, 2, 4, 2, 4, 5, 5, 1, 4, 1, 5, 3, 5, 1, 4, 2, 1, 2, 2, 2, 4, 4, 4, 4, 2, 1, 1, 4, 5, 4, 1, 2, 2, 3, 5, 6, 4, 1, 1, 1, 3, 6, 1, 2, 4, 3, 2, 3, 2, 3, 6, 6, 3, 4, 4, 4, 6, 6, 2, 6, 6, 3, 2, 3, 5, 1, 2, 4, 1, 3, 5, 5, 1, 2, 5, 1, 5, 6, 2, 6, 2, 1, 1, 4, 4, 2, 1, 5, 2, 3, 4, 4, 2, 5, 2, 5, 5, 5, 3, 1, 4, 6, 6, 5, 5, 1, 3, 3, 6, 5, 6, 2, 1, 1, 1, 5, 4, 3, 1, 1, 2, 1, 3, 1, 6, 1, 5, 1, 2, 6, 1, 2, 2, 2, 5, 1, 2, 6, 5, 2, 2, 1, 3, 6, 2, 6, 1, 1, 6, 3, 5, 2, 6, 3, 1, 1, 4, 3, 5, 2, 3, 2, 4, 5, 1, 2, 5, 5, 3, 1, 4, 4, 5, 5, 5, 3, 2, 1, 3, 1, 3, 2, 2, 5, 6, 5, 2, 2, 6, 4, 1, 4, 2, 3, 5, 2, 5, 5, 6, 4, 6, 4, 3, 5, 4, 3, 5, 2, 6, 5, 5, 5, 1, 4, 6, 5, 3, 5, 5, 4, 5, 4, 4, 3, 1, 6, 4, 1, 5, 5, 6, 3, 2, 4, 3, 4, 4, 4, 5, 3, 3, 4, 2, 5, 3, 6, 1, 4, 5, 5, 6, 1, 4, 1, 1, 2, 2, 1, 3, 5, 1, 1, 2, 1, 2, 1, 1, 2, 3, 1, 3, 5, 5, 6, 4, 3, 5, 6, 1, 3, 4, 5, 6, 3, 1, 5, 4, 2, 3, 2, 6, 4, 6, 6, 6, 4, 1, 5, 1, 6, 4, 6, 6, 1, 3, 1, 4, 6, 2, 1, 4, 2, 4, 4, 4, 6, 6, 1, 6, 3, 6, 5, 3, 5, 3, 5, 6, 6, 1, 6, 2, 2, 1, 6, 1, 1, 1, 6, 3, 3, 6, 5, 1, 1, 4, 4, 2, 6, 5, 3, 4, 6, 5, 4, 2, 2, 1, 5, 3, 5, 5, 5, 4, 4, 6, 4, 4, 3, 1, 1, 6, 2, 3, 3, 3, 6, 5, 2, 1, 3, 1, 4, 4, 2, 3, 1, 2, 6, 1, 6, 4, 4, 3, 1, 4, 6, 1, 5, 4, 5, 3, 2, 2, 5, 5, 3, 6, 1, 2, 5, 5, 5, 4, 4, 4, 5, 1, 2, 4, 1, 6, 4, 3, 4, 4, 2, 4, 3, 4, 3, 5, 2, 3, 2, 3, 6, 6, 5, 2, 5, 5, 1, 4, 3, 5, 6, 5, 5, 1, 5, 3, 1, 3, 2, 2, 5, 6, 2, 6, 6, 4, 5, 2, 3, 1, 5, 5, 2, 2, 6, 5, 2, 5, 5, 3, 4, 6, 2, 1, 5, 6, 3, 2, 3, 2, 6, 6, 1, 4, 6, 5, 6, 6, 6, 5, 6, 6, 3, 6, 6, 4, 5, 5, 4, 6, 5, 2, 6, 6, 3, 3, 3, 3, 6, 5, 5, 6, 1, 3, 6, 1, 1, 1, 3, 4, 4, 4, 1, 4, 6, 6, 1, 5, 4, 1, 3, 2, 4, 5, 3, 6, 2, 3, 3, 3, 4, 5, 3, 2, 4, 4, 2, 3, 6, 4, 6, 6, 1, 2, 1, 2, 3, 1, 6, 5, 4, 4, 4, 5, 6, 6, 1, 5, 4, 1, 4, 3, 2, 1, 3, 2, 3, 1, 6, 5, 2, 3, 6, 6, 1, 1, 5, 2, 2, 1, 3, 2, 5, 2, 6, 5, 4, 5, 2, 2, 1, 6, 3, 1, 5, 1, 6, 4, 6, 3, 3, 1, 1, 4, 4, 6, 4, 2, 1, 6, 2, 4, 3, 4, 4, 5, 5, 2, 1, 4, 3, 5, 6, 6, 6, 2, 5, 6, 2, 3, 2, 4, 5, 6, 3, 3, 5, 4, 1, 1, 1, 2, 5, 6, 1, 4, 5, 3, 4, 2, 1, 6, 6, 4, 2, 6, 4, 3, 1, 2, 4, 2, 4, 6, 5, 6, 5, 6, 4, 4, 1, 2, 4, 6, 6, 1, 5, 2, 3, 2, 1, 5, 4, 1, 4, 4, 3, 6, 4, 6, 1, 6, 6, 2, 3, 5, 4, 3, 2, 1, 4, 3, 2, 2, 4, 5, 2, 1, 6, 1, 6, 1, 5, 1, 3, 1, 1, 6, 5, 6, 6, 6, 4, 6, 3, 4, 1, 4, 1, 1, 6, 3, 1, 3, 3, 4, 5, 2, 5, 4, 3, 1, 5, 5, 6, 6, 6, 5, 3, 6, 2, 4, 5, 6, 2, 3, 2, 3, 1, 3, 6, 4, 4, 5, 5, 5, 3, 1, 1, 6, 1, 4, 1, 2, 3, 3, 2, 3, 4, 1]
-        # train_seq = EmissionSequence(sigma, tr)
-        # test_seq = EmissionSequence(sigma, [4, 6, 1, 1, 5, 2, 5, 3, 4, 2, 1, 6, 1, 5, 5, 5, 6, 2, 4, 3, 4, 3, 4, 1, 3, 4, 2, 2, 3, 3, 2, 6, 6, 3, 6, 4, 1, 4, 4, 4, 6, 2, 1, 1, 2, 2, 2, 3, 5, 1, 2, 1, 4, 2, 6, 1, 6, 4, 4, 1, 1, 4, 6, 5, 1, 2, 5, 6, 3, 5, 1, 1, 2, 2, 1, 1, 5, 4, 6, 6, 3, 5, 4, 4, 4, 3, 3, 6, 6, 2, 1, 2, 1, 3, 2, 6, 2, 4, 2, 4])
-        # test_vit = []
+        sequence = EmissionSequence(e, seq_sens)
 
-        # m = ghmm_matrix(sigma, A, B, pi, train_seq, test_seq)
-        ### //////////////////////////////////////////////
-
+        vt = model.viterbi(sequence)
+        print 'analyzed >test_seq< with viterbi algorithm\n', vt
 
 
 if __name__ == '__main__':
     
-    # packages = ['ghmm', 'pomegranate']
-    # packages = ['ghmm']
+    ### dataset is the list of each house analyzed, in each house:
+    ###     house[0] = name house
+    ###     house[1] = Description
+    ###     house[2] = ADLs
+    ###     house[3] = Sensors
+
+    ordonezA = ['Dataset/OrdonezA','Dataset/OrdonezA_Description','Dataset/OrdonezA_ADLs','Dataset/OrdonezA_Sensors']
+    # ordonezA = ['Dataset/OrdonezB','Dataset/OrdonezB_Description','Dataset/OrdonezB_ADLs','Dataset/OrdonezB_Sensors']
+    # dataset = [ordonezA, ordonezB]
+    # dataset = [ordonezA]
+
+    test1 = ['Deposet/test1','Deposet/test1_Description','Deposet/test1_ADLs','Deposet/test1_Sensors']
+    test2 = ['Deposet/test2','Deposet/test2_Description','Deposet/test2_ADLs','Deposet/test2_Sensors']
+    dataset = [test1]
+
+    ### packages is the list of package that can be used to build hmm model
+    # packages = ['pomegranate', 'ghmm']
     packages = ['pomegranate']
 
-    data = elaborate_dataset()
-    house_name = data[0]
-    path_adls = data[1]
-    list_adls = data[2]
-    p_adls = data[3]
-    t_adls = data[4]
-    path_sens = data[5]
-    list_sens = data[6]
-    sens_seq = data[7]
-    o_sens_adls = data[8]
+    for house in dataset:
 
-    for package in packages:
+        data = elaborate_dataset()
+        
+        house = data[0]
+        path_adls = data[1]
+        list_adls = data[2]
+        p_adls = data[3]
+        seq_adls = data[4]
+        t_adls = data[5]
+        path_sens = data[6]
+        list_sens = data[7]
+        seq_sens = data[8]
+        o_sens_adls = data[9]
 
-        if package == 'ghmm':
-            from ghmm import *
-        
-        if package == 'pomegranate':
-            from pomegranate import *
-            import random
-            import math
-        
-        model_hmm(package, house_name, path_adls, list_adls, p_adls, t_adls, path_sens, list_sens, sens_seq, o_sens_adls)
+        for pack in packages:
+
+            if pack == 'ghmm':
+                from ghmm import *
+            
+            if pack == 'pomegranate':
+                from pomegranate import *
+            
+            model_hmm(pack, house, path_adls, list_adls, p_adls, seq_adls, t_adls, path_sens, list_sens, seq_sens, o_sens_adls)
