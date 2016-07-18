@@ -547,7 +547,7 @@ if __name__ == '__main__':
 
     # test1 = ['Deposet/test1','Deposet/test1_Description','Deposet/test1_ADLs','Deposet/test1_Sensors']
     # test2 = ['Deposet/test2','Deposet/test2_Description','Deposet/test2_ADLs','Deposet/test2_Sensors']
-    # dataset = [test1]
+    # dataset = [test1, test2]
 
     ### packages is the list of package that can be used to build hmm model
     packages = ['ghmm', 'pomegranate']
