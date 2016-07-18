@@ -323,160 +323,54 @@ def diff_base(seq1, seq2):
     print 'n total diffs: %s' %n_diffs
     return n_diffs
 
-# def compare(seq1, seq2, p1, p2, p_diff):
-
-#     try:
-#         xm1 = seq2[p2-1]
-#         bxm1 = True
-#     except IndexError:
-#         bxm1 = False
-#     try:
-#         xp1 = seq2[p2+1]
-#         bxp1 = True
-#     except IndexError:
-#         bxp1 = False
-#     try:
-#         xm2 = seq2[p2-2]
-#         bxm2 = True
-#     except IndexError:
-#         bxm2 = False
-#     try:
-#         xp2 = seq2[p2+2]
-#         bxp2 = True
-#     except IndexError:
-#         bxp2 = False
-#     try:
-#         xm3 = seq2[p2-3]
-#         bxm3 = True
-#     except IndexError:
-#         bxm3 = False
-#     try:
-#         xp3 = seq2[p2+3]
-#         bxp3 = True
-#     except IndexError:
-#         bxp3 = False
-
-#     if seq1[p1] == seq2[p2]:
-#         p_diff += 1.0
-#         return p2, p_diff
-#     if bxm1:
-#         if seq1[p1] == seq2[xm1]:
-#             p_diff += 0.8
-#             return xm1, p_diff
-#     if bxp1:
-#         if seq1[p1] == seq2[xp1]:
-#             p_diff += 0.8
-#             return xp1, p_diff
-#     if bxm2:
-#         if seq1[p1] == seq2[xm2]:
-#             p_diff += 0.6
-#             return xm2, p_diff
-#     if bxp2:
-#         if seq1[p1] == seq2[xp2]:
-#             p_diff += 0.6
-#             return xp2, p_diff
-#     if bxm3:
-#         if seq1[p1] == seq2[xm3]:
-#             p_diff += 0.4
-#             return xm3, p_diff
-#     if bxp3:
-#         if seq1[p1] == seq2[xp3]:
-#             p_diff += 0.4
-#             return xp3, p_diff
-
-#     return xp, p_diff+=0.001
-
-
-# def diff_A(seq1, seq2):
-#     p_diff = 0
-#     len1 = len(seq1)
-#     len2 = len(seq2)
-
-#     try:
-#         y = 0
-#         for x in len1:
-#             y = compare(seq1, seq2, x, y, p_diff)
-#     except StopIteration:
-#         print 'ops'
-
-
-def compare(seq1, seq2, x, p_diff):
-
-    try:
-        xm1 = seq2[x-1]
-        bxm1 = True
-    except IndexError:
-        bxm1 = False
-    try:
-        xp1 = seq2[x+1]
-        bxp1 = True
-    except IndexError:
-        bxp1 = False
-    try:
-        xm2 = seq2[x-2]
-        bxm2 = True
-    except IndexError:
-        bxm2 = False
-    try:
-        xp2 = seq2[x+2]
-        bxp2 = True
-    except IndexError:
-        bxp2 = False
-    try:
-        xm3 = seq2[x-3]
-        bxm3 = True
-    except IndexError:
-        bxm3 = False
-    try:
-        xp3 = seq2[x+3]
-        bxp3 = True
-    except IndexError:
-        bxp3 = False
-
+def compare_A(seq1, seq2, x, p_diff):
+    
     if seq1[x] == seq2[x]:
         p_diff += 1.0
-        print '== %s %s' %(seq1[x], p_diff)
         return p_diff
-    if bxm1:
-        if seq1[x] == seq2[xm1]:
+    
+    try:
+        if seq1[x] == seq2[x-1]:
             p_diff += 0.8
-            print '-1 %s %s' %(seq1[x], p_diff)
             return p_diff
-    if bxp1:
-        if seq1[x] == seq2[xp1]:
+    except IndexError:
+        pass
+    try:
+        if seq1[x] == seq2[x+1]:
             p_diff += 0.8
-            print '+1 %s %s' %(seq1[x], p_diff)
             return p_diff
-    if bxm2:
-        if seq1[x] == seq2[xm2]:
+    except IndexError:
+        pass
+    try:
+        if seq1[x] == seq2[x-2]:
             p_diff += 0.6
-            print '-2 %s %s' %(seq1[x], p_diff)
             return p_diff
-    if bxp2:
-        if seq1[x] == seq2[xp2]:
+    except IndexError:
+        pass
+    try:
+        if seq1[x] == seq2[x+2]:
             p_diff += 0.6
-            print '+2 %s %s' %(seq1[x], p_diff)
             return p_diff
-    if bxm3:
-        if seq1[x] == seq2[xm3]:
+    except IndexError:
+        pass
+    try:
+        if seq1[x] == seq2[x-3]:
             p_diff += 0.4
-            print '-3 %s %s' %(seq1[x], p_diff)
             return p_diff
-    print 'bxp3: %s -> %s - %s' %(bxp3, seq1[x], seq2[xp3])
-    if bxp3:
-        if seq1[x] == seq2[xp3]:
+    except IndexError:
+        pass
+    try:
+        if seq1[x] == seq2[x+3]:
             p_diff += 0.4
-            print '+3 %s %s' %(seq1[x], p_diff)
             return p_diff
+    except IndexError:
+        pass
     
     p_diff += 0.001
-    print 'nn %s %s' %(seq1[x], p_diff)
     return p_diff
 
 def diff_A(seq1, seq2):
     p_diff = 0
-    y = 0
-
     last = False
     iter_seq1 = iter(seq1)
     for x in range(len(seq1)):
@@ -486,12 +380,52 @@ def diff_A(seq1, seq2):
         except StopIteration:
             last = True
         if not last:
-            p_diff = compare(seq1, seq2, x, p_diff)
-            # print '%s' %k
-            # print p_diff
-            
+            p_diff = compare_A(seq1, seq2, x, p_diff)
+    p_diff = np.divide(p_diff, float(len(seq1)))            
+    return p_diff
 
-            
+def compare_B(seq1, seq2, x, y):
+    
+    if seq1[x] == seq2[y]:
+        print '== seq[%s] %s == seq[%s] %s -> return %s' %(x, seq1[x], y, seq2[y], y+1)
+        return y+1
+    
+    try:
+        if seq1[x] == seq2[y+1]:
+            print '+1 seq[%s] %s == seq[%s] %s -> return %s' %(x, seq1[x], y+1, seq2[y+1], y+2)
+            return y+2
+    except IndexError:
+        pass
+    try:
+        if seq1[x] == seq2[y+2]:
+            print '+2 seq[%s] %s == seq[%s] %s -> return %s' %(x, seq1[x], y+2, seq2[y+2], y+3)
+            return y+3
+    except IndexError:
+        pass
+    try:
+        if seq1[x] == seq2[y+3]:
+            print '+3 seq[%s] %s == seq[%s] %s -> return %s' %(x, seq1[x], y+3, seq2[y+3], y+4)
+            return y+4
+    except IndexError:
+        pass
+    
+    return y
+
+def diff_B(seq1, seq2):
+    p_diff = 0
+    y = 0
+    iter_seq1 = iter(seq1)
+    for x in range(len(seq1)):
+        try:
+            k = next(iter_seq1)
+            last = False
+        except StopIteration:
+            last = True
+        if not last:
+            if y <= len(seq2):
+                y = compare_B(seq1, seq2, x, y)
+    print y
+             
 
             
              
@@ -554,6 +488,7 @@ def model_hmm(package, house_name, path_adls, list_adls, p_adls, seq_adls, t_adl
 
         # diff_base(seq_adls, viterbi_adls)
         diff_A(seq_adls, viterbi_adls)
+        diff_B(seq_adls, viterbi_adls)
 
         # print model.predict(sequence, algorithm='viterbi')
         # print
