@@ -319,58 +319,71 @@ def diff_base(seq1, seq2):
         mismatch = ( seq1[x] != seq2[x] )
         if mismatch:
             n_diffs += 1
-        print '%s \t %s \t:%s' %(seq1[x], seq2[x], not mismatch)
-    print 'n total diffs: %s' %n_diffs
-    return n_diffs
+        # print '%s \t %s \t:%s' %(seq1[x], seq2[x], not mismatch)
+    # print 'n total diffs: %s' %n_diffs
+    score = np.divide(float(n_diffs), float(len(seq1)))
+    return score
 
-def compare_A(seq1, seq2, x, p_diff):
+def compare_A(seq1, seq2, x, score):
     
     if seq1[x] == seq2[x]:
-        p_diff += 1.0
-        return p_diff
+        score += 0
+        return score
     
     try:
         if seq1[x] == seq2[x-1]:
-            p_diff += 0.8
-            return p_diff
+            score += 1
+            return score
     except IndexError:
         pass
     try:
         if seq1[x] == seq2[x+1]:
-            p_diff += 0.8
-            return p_diff
+            score += 1
+            return score
     except IndexError:
         pass
     try:
         if seq1[x] == seq2[x-2]:
-            p_diff += 0.6
-            return p_diff
+            score += 2
+            return score
     except IndexError:
         pass
     try:
         if seq1[x] == seq2[x+2]:
-            p_diff += 0.6
-            return p_diff
+            score += 2
+            return score
     except IndexError:
         pass
     try:
         if seq1[x] == seq2[x-3]:
-            p_diff += 0.4
-            return p_diff
+            score += 3
+            return score
     except IndexError:
         pass
     try:
         if seq1[x] == seq2[x+3]:
-            p_diff += 0.4
-            return p_diff
+            score += 3
+            return score
+    except IndexError:
+        pass
+    try:
+        if seq1[x] == seq2[x-4]:
+            score += 4
+            return score
+    except IndexError:
+        pass
+    try:
+        if seq1[x] == seq2[x+4]:
+            score += 4
+            return score
     except IndexError:
         pass
     
-    p_diff += 0.001
-    return p_diff
+    score += 9
+    return score
 
 def diff_A(seq1, seq2):
-    p_diff = 0
+    score_diff = 0
     last = False
     iter_seq1 = iter(seq1)
     for x in range(len(seq1)):
@@ -380,31 +393,27 @@ def diff_A(seq1, seq2):
         except StopIteration:
             last = True
         if not last:
-            p_diff = compare_A(seq1, seq2, x, p_diff)
-    p_diff = np.divide(p_diff, float(len(seq1)))            
-    return p_diff
+            score_diff = compare_A(seq1, seq2, x, score_diff)
+    score_diff = np.divide(float(score_diff), float(len(seq1)))            
+    return score_diff
 
 def compare_B(seq1, seq2, x, y):
     
     if seq1[x] == seq2[y]:
-        print '== seq[%s] %s == seq[%s] %s -> return %s' %(x, seq1[x], y, seq2[y], y+1)
         return y+1
     
     try:
         if seq1[x] == seq2[y+1]:
-            print '+1 seq[%s] %s == seq[%s] %s -> return %s' %(x, seq1[x], y+1, seq2[y+1], y+2)
             return y+2
     except IndexError:
         pass
     try:
         if seq1[x] == seq2[y+2]:
-            print '+2 seq[%s] %s == seq[%s] %s -> return %s' %(x, seq1[x], y+2, seq2[y+2], y+3)
             return y+3
     except IndexError:
         pass
     try:
         if seq1[x] == seq2[y+3]:
-            print '+3 seq[%s] %s == seq[%s] %s -> return %s' %(x, seq1[x], y+3, seq2[y+3], y+4)
             return y+4
     except IndexError:
         pass
@@ -412,7 +421,6 @@ def compare_B(seq1, seq2, x, y):
     return y
 
 def diff_B(seq1, seq2):
-    p_diff = 0
     y = 0
     iter_seq1 = iter(seq1)
     for x in range(len(seq1)):
@@ -424,11 +432,9 @@ def diff_B(seq1, seq2):
         if not last:
             if y <= len(seq2):
                 y = compare_B(seq1, seq2, x, y)
-    print y
-             
+    score = np.divide(float(len(seq1)), float(y-1))
+    return score
 
-            
-             
 
 def elaborate_dataset():
     print 
@@ -451,8 +457,26 @@ def elaborate_dataset():
     seq_sens = temp[1]
     o_sens_adls = obtain_o_sens_adls(path_adls, list_adls, path_sens, list_sens, house_name)
 
+    print
+    print 'list sensors: index - name'
+    for x in range(len(list_sens)):
+        print '\t%s\t%s' %(x, list_sens[x])
+
+    print
+    print 'list activity: index - name'
+    for x in range(len(list_adls)):
+        print '\t%s\t%s' %(x, list_adls[x])
+
     return house_name, path_adls, list_adls, p_adls, seq_adls, t_adls, path_sens, list_sens, seq_sens, o_sens_adls
 
+def txt_model(house_name, package, model):
+    out = house_name+'_hmm_'+package+'.txt'
+    f = open(out, 'w')
+    f.write('%s' %model)
+    f.close()
+    print
+    print '%s : HMM model - %s' %(house_name, package)
+    print '\tloaded in >> %s <<' %out
 
 def model_hmm(package, house_name, path_adls, list_adls, p_adls, seq_adls, t_adls, path_sens, list_sens, seq_sens, o_sens_adls):
 
@@ -474,29 +498,25 @@ def model_hmm(package, house_name, path_adls, list_adls, p_adls, seq_adls, t_adl
             for y, aa in enumerate(a):
                 model.add_transition( states[x], states[y], t_adls[x][y] )
 
-        # for state in states:
-            # print state
-
         model.bake()
 
         sequence = int_sequence_to_verbose(list_sens, seq_sens)
 
         full_viterbi_adls = (' '.join( state.name for i, state in model.viterbi( sequence )[1] )).split( )
         viterbi_adls = remove_repetitions( verbose_sequence_to_int( list_adls, full_viterbi_adls ) )
-        print viterbi_adls
-        print seq_adls
+        
+        txt_model(house_name, package, model)
 
-        # diff_base(seq_adls, viterbi_adls)
-        diff_A(seq_adls, viterbi_adls)
-        diff_B(seq_adls, viterbi_adls)
+        print 'from pomegranate:'
+        print '\tsensors sequence from dataset: \n\t %s' %seq_sens 
 
-        # print model.predict(sequence, algorithm='viterbi')
-        # print
-        # print "\n".join( state.name for i, state in model.viterbi( sequence )[1] )
-        # int_seq_gen = verbose_sequence_to_int(list_adls, verb_seq_gen)
+        print '\tactivity sequence from dataset: \n\t %s' %seq_adls
+        print '\tactivity sequence from viterbi: \n\t %s' %viterbi_adls
 
-
-
+        print
+        print '\tpunctual difference: %s (excellent ~= 0)' %diff_base(seq_adls, viterbi_adls)
+        print '\tindex A difference: %s (excellent ~= 0)' %diff_A(seq_adls, viterbi_adls)
+        print '\tindex B difference: %s (excellent ~= 1)' %diff_B(seq_adls, viterbi_adls)
 
     ### ghmm
     if package == 'ghmm':
@@ -504,12 +524,13 @@ def model_hmm(package, house_name, path_adls, list_adls, p_adls, seq_adls, t_adl
         sigma = IntegerRange(0, len(list_sens)) ### emission domain
     
         model = HMMFromMatrices(sigma, DiscreteDistribution(sigma), t_adls, o_sens_adls, p_adls)
-        # print '\n', model
+        
+        txt_model(house_name, package, model)
 
-        sequence = EmissionSequence(e, seq_sens)
-
-        vt = model.viterbi(sequence)
-        print 'analyzed >test_seq< with viterbi algorithm\n', vt
+        # sequence = EmissionSequence(sigma, seq_sens)
+        # print sequence
+        # vt = model.viterbi(sequence)
+        # print 'analyzed >test_seq< with viterbi algorithm\n', vt
 
 
 if __name__ == '__main__':
@@ -521,17 +542,15 @@ if __name__ == '__main__':
     ###     house[3] = Sensors
 
     ordonezA = ['Dataset/OrdonezA','Dataset/OrdonezA_Description','Dataset/OrdonezA_ADLs','Dataset/OrdonezA_Sensors']
-    # ordonezA = ['Dataset/OrdonezB','Dataset/OrdonezB_Description','Dataset/OrdonezB_ADLs','Dataset/OrdonezB_Sensors']
-    # dataset = [ordonezA, ordonezB]
-    # dataset = [ordonezA]
+    ordonezB = ['Dataset/OrdonezB','Dataset/OrdonezB_Description','Dataset/OrdonezB_ADLs','Dataset/OrdonezB_Sensors']
+    dataset = [ordonezA, ordonezB]
 
-    test1 = ['Deposet/test1','Deposet/test1_Description','Deposet/test1_ADLs','Deposet/test1_Sensors']
-    test2 = ['Deposet/test2','Deposet/test2_Description','Deposet/test2_ADLs','Deposet/test2_Sensors']
-    dataset = [test1]
+    # test1 = ['Deposet/test1','Deposet/test1_Description','Deposet/test1_ADLs','Deposet/test1_Sensors']
+    # test2 = ['Deposet/test2','Deposet/test2_Description','Deposet/test2_ADLs','Deposet/test2_Sensors']
+    # dataset = [test1]
 
     ### packages is the list of package that can be used to build hmm model
-    # packages = ['pomegranate', 'ghmm']
-    packages = ['pomegranate']
+    packages = ['ghmm', 'pomegranate']
 
     for house in dataset:
 

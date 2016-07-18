@@ -1,0 +1,186 @@
+Smarthome:{
+    "distribution" : {
+        "frozen" : false,
+        "class" : "Distribution",
+        "parameters" : [
+            {
+                "Cabinet Magnetic Bathroom" : 1.4285712857142997e-08,
+                "Bed Pressure Bedroom" : 1.4285712857142997e-08,
+                "Seat Pressure Living" : 1.4285712857142997e-08,
+                "Fridge Magnetic Kitchen" : 0.28571425714286,
+                "Toilet Flush Bathroom" : 1.4285712857142997e-08,
+                "Cupboard Magnetic Kitchen" : 0.28571425714286,
+                "Basin PIR Bathroom" : 1.4285712857142997e-08,
+                "Microwave Electric Kitchen" : 0.14285712857143,
+                "Shower PIR Bathroom" : 1.4285712857142997e-08,
+                "Toaster Electric Kitchen" : 0.14285712857143,
+                "Cooktop PIR Kitchen" : 0.14285712857143,
+                "Maindoor Magnetic Entrance" : 1.428571305694959e-08
+            }
+        ],
+        "name" : "DiscreteDistribution"
+    },
+    "class" : "State",
+    "weight" : 1.0,
+    "name" : "Breakfast"
+}{
+    "distribution" : {
+        "frozen" : false,
+        "class" : "Distribution",
+        "parameters" : [
+            {
+                "Cabinet Magnetic Bathroom" : 9.999989000012095e-08,
+                "Bed Pressure Bedroom" : 9.999989000012095e-08,
+                "Seat Pressure Living" : 9.999989000012095e-08,
+                "Fridge Magnetic Kitchen" : 9.999989000012095e-08,
+                "Toilet Flush Bathroom" : 9.999989000012095e-08,
+                "Cupboard Magnetic Kitchen" : 9.999989000012095e-08,
+                "Basin PIR Bathroom" : 0.9999989000012096,
+                "Microwave Electric Kitchen" : 9.999989000012095e-08,
+                "Shower PIR Bathroom" : 9.999989000012095e-08,
+                "Toaster Electric Kitchen" : 9.999989000012095e-08,
+                "Cooktop PIR Kitchen" : 9.999989000012095e-08,
+                "Maindoor Magnetic Entrance" : 9.999989014630728e-08
+            }
+        ],
+        "name" : "DiscreteDistribution"
+    },
+    "class" : "State",
+    "weight" : 1.0,
+    "name" : "Grooming"
+}{
+    "distribution" : {
+        "frozen" : false,
+        "class" : "Distribution",
+        "parameters" : [
+            {
+                "Cabinet Magnetic Bathroom" : 4.9999972500015125e-08,
+                "Bed Pressure Bedroom" : 4.9999972500015125e-08,
+                "Seat Pressure Living" : 4.9999972500015125e-08,
+                "Fridge Magnetic Kitchen" : 4.9999972500015125e-08,
+                "Toilet Flush Bathroom" : 4.9999972500015125e-08,
+                "Cupboard Magnetic Kitchen" : 4.9999972500015125e-08,
+                "Basin PIR Bathroom" : 4.9999972500015125e-08,
+                "Microwave Electric Kitchen" : 4.9999972500015125e-08,
+                "Shower PIR Bathroom" : 4.9999972500015125e-08,
+                "Toaster Electric Kitchen" : 4.9999972500015125e-08,
+                "Cooktop PIR Kitchen" : 4.9999972500015125e-08,
+                "Maindoor Magnetic Entrance" : 0.9999994500003025
+            }
+        ],
+        "name" : "DiscreteDistribution"
+    },
+    "class" : "State",
+    "weight" : 1.0,
+    "name" : "Leaving"
+}{
+    "distribution" : {
+        "frozen" : false,
+        "class" : "Distribution",
+        "parameters" : [
+            {
+                "Cabinet Magnetic Bathroom" : 9.999989000012095e-08,
+                "Bed Pressure Bedroom" : 9.999989000012095e-08,
+                "Seat Pressure Living" : 9.999989000012095e-08,
+                "Fridge Magnetic Kitchen" : 9.999989000012095e-08,
+                "Toilet Flush Bathroom" : 9.999989000012095e-08,
+                "Cupboard Magnetic Kitchen" : 9.999989000012095e-08,
+                "Basin PIR Bathroom" : 9.999989000012095e-08,
+                "Microwave Electric Kitchen" : 9.999989000012095e-08,
+                "Shower PIR Bathroom" : 0.9999989000012096,
+                "Toaster Electric Kitchen" : 9.999989000012095e-08,
+                "Cooktop PIR Kitchen" : 9.999989000012095e-08,
+                "Maindoor Magnetic Entrance" : 9.999989014630728e-08
+            }
+        ],
+        "name" : "DiscreteDistribution"
+    },
+    "class" : "State",
+    "weight" : 1.0,
+    "name" : "Showering"
+}{
+    "distribution" : {
+        "frozen" : false,
+        "class" : "Distribution",
+        "parameters" : [
+            {
+                "Cabinet Magnetic Bathroom" : 9.999989000012093e-08,
+                "Bed Pressure Bedroom" : 0.9999989000012094,
+                "Seat Pressure Living" : 9.999989000012093e-08,
+                "Fridge Magnetic Kitchen" : 9.999989000012093e-08,
+                "Toilet Flush Bathroom" : 9.999989000012093e-08,
+                "Cupboard Magnetic Kitchen" : 9.999989000012093e-08,
+                "Basin PIR Bathroom" : 9.999989000012093e-08,
+                "Microwave Electric Kitchen" : 9.999989000012093e-08,
+                "Shower PIR Bathroom" : 9.999989000012093e-08,
+                "Toaster Electric Kitchen" : 9.999989000012093e-08,
+                "Cooktop PIR Kitchen" : 9.999989000012093e-08,
+                "Maindoor Magnetic Entrance" : 9.999989025732958e-08
+            }
+        ],
+        "name" : "DiscreteDistribution"
+    },
+    "class" : "State",
+    "weight" : 1.0,
+    "name" : "Sleeping"
+}{
+    "distribution" : {
+        "frozen" : false,
+        "class" : "Distribution",
+        "parameters" : [
+            {
+                "Cabinet Magnetic Bathroom" : 4.9999972500015125e-08,
+                "Bed Pressure Bedroom" : 4.9999972500015125e-08,
+                "Seat Pressure Living" : 0.9999994500003025,
+                "Fridge Magnetic Kitchen" : 4.9999972500015125e-08,
+                "Toilet Flush Bathroom" : 4.9999972500015125e-08,
+                "Cupboard Magnetic Kitchen" : 4.9999972500015125e-08,
+                "Basin PIR Bathroom" : 4.9999972500015125e-08,
+                "Microwave Electric Kitchen" : 4.9999972500015125e-08,
+                "Shower PIR Bathroom" : 4.9999972500015125e-08,
+                "Toaster Electric Kitchen" : 4.9999972500015125e-08,
+                "Cooktop PIR Kitchen" : 4.9999972500015125e-08,
+                "Maindoor Magnetic Entrance" : 4.999997249566235e-08
+            }
+        ],
+        "name" : "DiscreteDistribution"
+    },
+    "class" : "State",
+    "weight" : 1.0,
+    "name" : "Spare_Time/TV"
+}{
+    "distribution" : {
+        "frozen" : false,
+        "class" : "Distribution",
+        "parameters" : [
+            {
+                "Cabinet Magnetic Bathroom" : 0.16666664166667033,
+                "Bed Pressure Bedroom" : 1.6666664166667035e-08,
+                "Seat Pressure Living" : 1.6666664166667035e-08,
+                "Fridge Magnetic Kitchen" : 1.6666664166667035e-08,
+                "Toilet Flush Bathroom" : 0.49999992500001106,
+                "Cupboard Magnetic Kitchen" : 1.6666664166667035e-08,
+                "Basin PIR Bathroom" : 0.33333328333334067,
+                "Microwave Electric Kitchen" : 1.6666664166667035e-08,
+                "Shower PIR Bathroom" : 1.6666664166667035e-08,
+                "Toaster Electric Kitchen" : 1.6666664166667035e-08,
+                "Cooktop PIR Kitchen" : 1.6666664166667035e-08,
+                "Maindoor Magnetic Entrance" : 1.6666664603981474e-08
+            }
+        ],
+        "name" : "DiscreteDistribution"
+    },
+    "class" : "State",
+    "weight" : 1.0,
+    "name" : "Toileting"
+}{
+    "distribution" : null,
+    "class" : "State",
+    "weight" : 1.0,
+    "name" : "Smarthome-start"
+}{
+    "distribution" : null,
+    "class" : "State",
+    "weight" : 1.0,
+    "name" : "Smarthome-end"
+}
